@@ -42,7 +42,7 @@ export const Navigation = () => {
     return (
         <aside className="flex flex:row items-center justify-between xl:justify-center text-primary px-4 xl:pb-20 xl:sticky xl:top-0 xl:flex-col xl:min-h-screen">
             <a href="/#top" className="w-full h-full xl:h-auto py-6">
-                <Icons.warrior className="xl:w-32 w-72 lg:w-80 h-full mx-auto animate-zoomIn" />
+                <Icons.logo className="xl:w-32 w-72 lg:w-80 h-full mx-auto animate-zoomIn" />
             </a>
 
             <input type="checkbox" id="menu" hidden className="peer" />
