@@ -1,0 +1,6 @@
+.starfield {
+    background-image: url(./../assets/stars.png);
+    background-repeat: repeat;
+    mask-image: url(./../assets/stars-mask.webp);
+    mask-repeat: repeat;
+}
