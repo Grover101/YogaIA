@@ -1,27 +1,35 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { Home } from './components/secctions/Home'
+import { About } from './components/secctions/About'
 import { Navigation } from './components/Navigation'
+import { Evaluate } from './components/secctions/Evaluate'
 import './styles/App.css'
+import { Evaluation } from './components/secctions/Evaluation'
+import { Profile } from './components/secctions/Profile'
 
 const App = () => {
     return (
-        <>
-            <div className="absolute inset-0 pointer-events-none">
-                <div
-                    className={
-                        'pointer-events-none bg-black fixed inset-0 -z-50 bg-[length:100%_175%]'
-                    }
-                >
-                    <div className="starfield absolute inset-0" />
-                </div>
-            </div>
-            <div className="flex flex-col xl:flex-row justify-between m-auto xl:gap-x-24 xl:w-[1200px] mt-24 md:mt-10 xl:mt-0">
-                <div className="w-full xl:w-52">
+        <div className="flex">
+            <Router>
+                <div className="w-72 bg-slate-600 h-screen p-5  pt-8 relative duration-300">
                     <Navigation />
                 </div>
-                <main className="flex-1 relative px-6">
-                    <slot />
-                </main>
-            </div>
-        </>
+                <div className="starfield w-full">
+                    <div className="h-screen flex-1 p-16">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/evaluate" element={<Evaluate />} />
+                            <Route
+                                path="/identification"
+                                element={<Evaluation />}
+                            />
+                            <Route path="/profile" element={<Profile />} />
+                        </Routes>
+                    </div>
+                </div>
+            </Router>
+        </div>
     )
 }
 
