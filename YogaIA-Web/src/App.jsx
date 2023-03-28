@@ -6,6 +6,8 @@ import { Evaluate } from './components/secctions/Evaluate'
 import './styles/App.css'
 import { Evaluation } from './components/secctions/Evaluation'
 import { Profile } from './components/secctions/Profile'
+import { SignUp } from './components/secctions/SignUp'
+import { SignIn } from './components/secctions/SignIn'
 
 const App = () => {
     return (
@@ -20,10 +22,8 @@ const App = () => {
                             <Route path="/" element={<Home />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/evaluate" element={<Evaluate />} />
-                            <Route
-                                path="/identification"
-                                element={<Evaluation />}
-                            />
+                            <Route path="/login" element={<SignIn />} />
+                            <Route path="/register" element={<SignUp />} />
                             <Route path="/profile" element={<Profile />} />
                         </Routes>
                     </div>
