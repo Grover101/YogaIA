@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import WebcamImage from '../WebCamImage'
+import FaceRecognition from './FaceRecognition'
 
 export const SignUp = () => {
     const [webCam, setWebCam] = useState(false)
@@ -39,7 +40,7 @@ export const SignUp = () => {
                     </div>
                 </div>
                 <div className="w-full p-2 text-center">
-                    {webCam ? <WebcamImage /> : <></>}
+                    {webCam ? <WebcamImage /> : <FaceRecognition />}
                 </div>
             </div>
             <div className="flex m-5 text-center">
