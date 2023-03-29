@@ -43,9 +43,6 @@ export const SignUp = () => {
                     {webCam ? <WebcamImage /> : <FaceRecognition />}
                 </div>
             </div>
-            <div className="flex m-5 text-center">
-                <div className="flex-row"></div>
-            </div>
         </>
     )
 }
