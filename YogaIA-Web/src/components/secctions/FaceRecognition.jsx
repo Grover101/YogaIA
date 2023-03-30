@@ -1,12 +1,8 @@
 import React, { Component } from 'react'
-import {
-    loadModels,
-    getFullFaceDescription,
-    createMatcher,
-    isFaceDetectionModelLoaded
-} from './../../api/face'
-import { JSON_PROFILE } from './../../common/profile'
+import { loadModels, getFullFaceDescription } from './../../api/face'
 import { Form } from './../Form'
+import { fetchAPI } from '../../helpers/fetch'
+import { validationFom } from '../../helpers/validation'
 
 const MaxWidth = 600
 
@@ -14,11 +10,9 @@ const testImg =
     'https://d500.epimg.net/cincodias/imagenes/2016/07/04/lifestyle/1467646262_522853_1467646344_noticia_normal.jpg'
 
 const INIT_STATE = {
-    url: null,
     imageURL: null,
     file: null,
     fullDesc: null,
-    imageDimension: null,
     error: null,
     loading: false
 }
@@ -40,11 +34,8 @@ class FaceRecognition extends Component {
         this.state = {
             ...INIT_STATE,
             ...FORM_STATE,
-            faceMatcher: null,
-            showDescriptors: false,
             WIDTH: null,
-            HEIGHT: 0,
-            isModelLoaded: !!isFaceDetectionModelLoaded()
+            HEIGHT: 0
         }
     }
 
@@ -58,15 +49,9 @@ class FaceRecognition extends Component {
 
     mounting = async () => {
         await loadModels()
-        await this.matcher()
         await this.getImageDimension(testImg)
         await this.setState({ imageURL: testImg, loading: true })
         await this.handleImageChange(testImg)
-    }
-
-    matcher = async () => {
-        const faceMatcher = await createMatcher(JSON_PROFILE)
-        this.setState({ faceMatcher })
     }
 
     handleFileChange = async event => {
@@ -77,24 +62,6 @@ class FaceRecognition extends Component {
             loading: true
         })
         this.handleImageChange()
-    }
-
-    handleURLChange = event => {
-        this.setState({ url: event.target.value })
-    }
-
-    handleButtonClick = async () => {
-        this.resetState()
-        let blob = await fetch(this.state.url)
-            .then(r => r.blob())
-            .catch(error => this.setState({ error }))
-        if (!!blob && blob.type.includes('image')) {
-            this.setState({
-                imageURL: URL.createObjectURL(blob),
-                loading: true
-            })
-            this.handleImageChange()
-        }
     }
 
     handleImageChange = async (image = this.state.imageURL) => {
@@ -115,10 +82,6 @@ class FaceRecognition extends Component {
         img.src = imageURL
     }
 
-    handleDescriptorsCheck = event => {
-        this.setState({ showDescriptors: event.target.checked })
-    }
-
     resetState = () => {
         this.setState({ ...INIT_STATE })
     }
@@ -130,39 +93,9 @@ class FaceRecognition extends Component {
         this.setState({ form })
     }
 
-    register = () => {
-        const form = { ...this.state.form }
-        let validation = true
-        if (!form.name.value.length) {
-            form.name.error = 'Nombre es Requerido'
-            validation = false
-        }
-        if (!form.lastName.value.length) {
-            form.lastName.error = 'Apellido es Requerido'
-            validation = false
-        }
-        if (!form.email.value.length) {
-            form.email.error = 'Correo es Requerido'
-            validation = false
-        }
-        if (
-            !form.email.value.match(
-                /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/
-            )
-        ) {
-            form.email.error = 'Correo es Invalido'
-            validation = false
-        }
-        if (!form.ci.value.length) {
-            form.ci.error = 'CI es Requerido'
-            validation = false
-        }
-        if (!form.ci.value.match(/^(\d{8,10})+(\w{2,4})+$/)) {
-            form.ci.error = 'CI es Invalido'
-            validation = false
-        }
+    register = async () => {
+        let [validation, form] = validationFom({ ...this.state.form })
 
-        console.log(this.state.fullDesc)
         if (this.state.fullDesc?.length !== 1) {
             console.log('No Hay rostro')
             validation = false
@@ -176,23 +109,14 @@ class FaceRecognition extends Component {
             formData.append('email', form.email.value)
             formData.append('date', form.date.value)
             formData.append('ci', form.ci.value)
-            formData.append('file', this.state.file)
+            formData.append('photo', this.state.file)
+            formData.append(
+                'descriptor',
+                this.state.fullDesc[0]._descriptor.toString()
+            )
 
-            this.fetchAPI(formData)
-        }
-    }
-
-    fetchAPI = async datos => {
-        try {
-            const res = await fetch('', {
-                method: 'POST',
-                body: datos,
-                headers: {}
-            })
-            const message = await res.json()
+            const message = await fetchAPI(formData)
             console.log(message)
-        } catch (error) {
-            console.log(error)
         }
     }
 
