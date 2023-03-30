@@ -2,6 +2,8 @@ import React, { useCallback, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
 import { Form } from './Form'
 import { getFullFaceDescription } from '../api/face'
+import { fetchAPI } from '../helpers/fetch'
+import { validationFom } from '../helpers/validation'
 
 function WebcamImage() {
     const [img, setImg] = useState(null)
@@ -25,61 +27,40 @@ function WebcamImage() {
         facingMode: 'user'
     }
 
+    function DataURIToBlob(dataURI) {
+        const splitDataURI = dataURI.split(',')
+        const byteString =
+            splitDataURI[0].indexOf('base64') >= 0
+                ? atob(splitDataURI[1])
+                : decodeURI(splitDataURI[1])
+        const mimeString = splitDataURI[0].split(':')[1].split(';')[0]
+
+        const ia = new Uint8Array(byteString.length)
+        for (let i = 0; i < byteString.length; i++)
+            ia[i] = byteString.charCodeAt(i)
+
+        return new Blob([ia], { type: mimeString })
+    }
+
     const capture = useCallback(async () => {
         const imageSrc = webcamRef.current.getScreenshot()
         setImg(imageSrc)
         const fullCaracter = await getFullFaceDescription(imageSrc)
         setError(fullCaracter.length !== 1 ? 'No Hay rostro' : null)
         setFullDesc(fullCaracter)
-
-        const body = imageSrc.split(',')[1]
-        const blob = new Blob([atob(body)], {
-            type: 'image/jpg',
-            encoding: 'utf-8'
-        })
-        const fileAux = new File([blob], 'perfil')
-        setFile(fileAux)
+        setFile(DataURIToBlob(imageSrc))
     }, [webcamRef])
 
     const formData = (key, value) => {
         const atri = {}
         atri[key] = value
         const formAux = { ...form, ...atri }
-        // this.setState({ formAux })
         setForm(formAux)
     }
 
-    const register = () => {
-        const formAux = { ...form }
-        let validation = true
-        if (!formAux.name.value.length) {
-            formAux.name.error = 'Nombre es Requerido'
-            validation = false
-        }
-        if (!formAux.lastName.value.length) {
-            formAux.lastName.error = 'Apellido es Requerido'
-            validation = false
-        }
-        if (!formAux.email.value.length) {
-            formAux.email.error = 'Correo es Requerido'
-            validation = false
-        }
-        if (
-            !formAux.email.value.match(
-                /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/
-            )
-        ) {
-            formAux.email.error = 'Correo es Invalido'
-            validation = false
-        }
-        if (!formAux.ci.value.length) {
-            formAux.ci.error = 'CI es Requerido'
-            validation = false
-        }
-        if (!formAux.ci.value.match(/^(\d{8,10})+(\w{2,4})+$/)) {
-            formAux.ci.error = 'CI es Invalido'
-            validation = false
-        }
+    const register = async () => {
+        let [validation, formAux] = validationFom({ ...form })
+
         if (!file) {
             setError('No se saco foto')
             validation = false
@@ -96,11 +77,13 @@ function WebcamImage() {
             formData.append('email', formAux.email.value)
             formData.append('date', formAux.date.value)
             formData.append('ci', formAux.ci.value)
-            formData.append('file', file)
-            console.log(formAux, file)
-            // this.fetchAPI(formData)
+            formData.append('photo', file)
+            formData.append('descriptor', fullDesc[0].descriptor.toString())
+            const message = await fetchAPI(formData)
+            console.log(message)
         }
     }
+
     return (
         <div className="flex mb-4">
             <div className="w-1/2 text-center ">
