@@ -1,0 +1,23 @@
+# dependencies
+/node_modules
+
+# lock package manager
+yarn.lock
+package-lock.json
+
+# misca
+.env
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# log
+yarn-error.log
+
+# code
+.vscode
+
+# uploads
+/app/uploads
