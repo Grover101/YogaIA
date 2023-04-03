@@ -1,4 +1,5 @@
 require('dotenv').config()
+const path = require('path')
 const express = require('express')
 const cors = require('cors')
 const fileUpload = require('express-fileupload')
@@ -16,6 +17,7 @@ app.use(
         createParentPath: true
     })
 )
+app.use(express.static(path.join(__dirname, 'models')))
 app.use('/api', require('./app/routes/router'))
 
 connect()
