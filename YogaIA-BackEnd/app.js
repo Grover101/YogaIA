@@ -1,12 +1,20 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const fileUpload = require('express-fileupload')
 const app = express()
 const { connect } = require('./app/models')
 
 app.use(cors())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+app.use(
+    fileUpload({
+        useTempFiles: true,
+        tempFileDir: '/tmp/',
+        createParentPath: true
+    })
+)
 
 connect()
     .then(() => {
@@ -17,7 +25,7 @@ connect()
     })
 
 app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to bezkoder application.' })
+    res.json({ message: 'Welcome to YogaIA application.' })
 })
 
 app.listen(process.env.PORT || 3000, process.env.HOST, async () => {
