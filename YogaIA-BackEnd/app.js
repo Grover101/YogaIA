@@ -4,6 +4,7 @@ const cors = require('cors')
 const fileUpload = require('express-fileupload')
 const app = express()
 const { connect } = require('./app/models')
+const { loadModels } = require('./app/helpers/face')
 
 app.use(cors())
 app.use(express.urlencoded({ extended: false }))
@@ -15,6 +16,7 @@ app.use(
         createParentPath: true
     })
 )
+app.use('/api', require('./app/routes/router'))
 
 connect()
     .then(() => {
@@ -29,6 +31,7 @@ app.get('/', (req, res) => {
 })
 
 app.listen(process.env.PORT || 3000, process.env.HOST, async () => {
+    await loadModels()
     console.log(
         `Server is running on port http://${process.env.HOST}:${
             process.env.PORT || 3000
