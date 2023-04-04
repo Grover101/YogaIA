@@ -68,15 +68,11 @@ module.exports = {
     },
     async description(req, res) {
         try {
-            const users = await User.find().select([
-                'name',
-                'lastName',
-                'descriptor'
-            ])
+            const users = await User.find().select(['descriptor'])
             const fullDesc = {}
             users.forEach(user => {
-                fullDesc[user.name] = {
-                    name: `${user.name} ${user.lastName}`,
+                fullDesc[user.id] = {
+                    name: `${user.id}`,
                     descriptors: [user.descriptor]
                 }
             })
@@ -85,53 +81,38 @@ module.exports = {
             return res.status(500).json({ message: error.message })
         }
     },
-    async virifyIdentification(req, res) {
+    async verifyIdentification(req, res) {
         try {
             const photo = req.files ? await upLoadImageTemp(req.files) : null
 
-            const users = await User.find().select([
-                'name',
-                'lastName',
-                'descriptor'
-            ])
+            const users = await User.find().select(['descriptor'])
             const fullDescAux = {}
             users.forEach(user => {
-                fullDescAux[user.name] = {
-                    name: `${user.name} ${user.lastName}`,
+                fullDescAux[user.id] = {
+                    name: `${user.id}`,
                     descriptors: [user.descriptor]
                 }
             })
-
             const image = path.join(__dirname, '../temp/', photo)
 
             const faceMatcher = await createMatcher(fullDescAux)
-
             const fullDesc = await getFullFaceDescription(image, 160)
             const descriptors = fullDesc.map(fd => fd.descriptor)
-            const detections = fullDesc.map(fd => fd.detection)
             const match = descriptors.map(descriptor =>
                 faceMatcher.findBestMatch(descriptor)
             )
 
-            console.log('fullDesc: ', fullDesc.length)
-            console.log('descriptors: ', descriptors.length)
-            console.log('detections: ', detections.length)
-            console.log('match: ', match.length)
-
-            const identify = detections
-                ? detections.map((detection, i) => {
-                      console.log(i)
-                      return match && match[i] && match[i]._label !== 'unknown'
-                          ? match[i]._label
-                          : 'Desconocido'
-                  })
-                : null
-
-            // console.log(identify)
+            const identify =
+                match && match[0] && match[0]._label !== 'unknown'
+                    ? await User.findById(match[0]?._label).select([
+                          'name',
+                          'lastName',
+                          'email'
+                      ])
+                    : null
 
             fs.unlinkSync(image)
-
-            res.status(200).json({ identify })
+            return res.status(200).json(identify)
         } catch (error) {
             return res.status(500).json({
                 message: error.message || 'Error in verify Identification.'
