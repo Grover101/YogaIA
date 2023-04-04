@@ -3,11 +3,8 @@ import { loadModels, getFullFaceDescription } from './../../api/face'
 import { Form } from './../Form'
 import { fetchAPI } from '../../helpers/fetch'
 import { validationFom } from '../../helpers/validation'
-
+import testImg from './../../assets/default.jpg'
 const MaxWidth = 600
-
-const testImg =
-    'https://d500.epimg.net/cincodias/imagenes/2016/07/04/lifestyle/1467646262_522853_1467646344_noticia_normal.jpg'
 
 const INIT_STATE = {
     imageURL: null,
@@ -66,8 +63,17 @@ class FaceRecognition extends Component {
 
     handleImageChange = async (image = this.state.imageURL) => {
         await this.getImageDimension(image)
-        await getFullFaceDescription(image).then(fullDesc => {
-            this.setState({ fullDesc, loading: false })
+        const fullDesc = await getFullFaceDescription(image)
+        let message
+        if (fullDesc.length) {
+            const formData = new FormData()
+            formData.append('photo', this.state.file)
+            message = await fetchAPI(formData, '/users/verify')
+        }
+        this.setState({
+            error: message ? 'La foto de este Usuario ya existe' : null,
+            fullDesc,
+            loading: false
         })
     }
 
@@ -111,7 +117,7 @@ class FaceRecognition extends Component {
             formData.append('ci', form.ci.value)
             formData.append('photo', this.state.file)
 
-            const message = await fetchAPI(formData)
+            const message = await fetchAPI(formData, '/users')
             console.log(message)
         }
     }
@@ -120,21 +126,19 @@ class FaceRecognition extends Component {
         const { imageURL, fullDesc, error, loading } = this.state
 
         let status = <p className="text-[#0DFCDF]">Verificando...</p>
-        if (!!error && error.toString() === 'TypeError: Failed to fetch') {
-            status = (
-                <p style={{ color: 'red' }}>
-                    Status: Error Failed to fetch Image URL
-                </p>
-            )
-        } else if (loading) {
+        if (loading) {
             status = <p className="text-[#0DFCDF]">LOADING...</p>
         } else if (!!fullDesc && !!imageURL && !loading) {
             if (fullDesc.length === 1)
-                status = <p className="text-orangeColor">Imagen Valida</p>
+                status = error ? (
+                    <p className="text-[#ff0000]">{error}</p>
+                ) : (
+                    <p className="text-orangeColor">Imagen Valida</p>
+                )
             else status = <p className="text-[#ff0000]">Imagen invalida</p>
         }
 
-        let spinner = (
+        const spinner = (
             <div className="flex h-[300px]">
                 <div className="m-auto">
                     <svg
