@@ -1,0 +1,19 @@
+a::before,
+a::after {
+    font-weight: 400;
+    position: absolute;
+    color: #ffd200;
+    opacity: 0;
+    left: -15px;
+    transition: opacity 0.5s ease;
+}
+
+a::after {
+    left: unset;
+    right: -15px;
+}
+
+a:hover::before,
+a:hover::after {
+    opacity: 1;
+}
