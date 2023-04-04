@@ -1,7 +1,8 @@
-const { getFullFaceDescription } = require('../helpers/face')
-const { upLoadImage } = require('../helpers/upload')
+const { getFullFaceDescription, createMatcher } = require('../helpers/face')
+const { upLoadImage, upLoadImageTemp } = require('../helpers/upload')
 const path = require('path')
 const { User } = require('../models')
+const fs = require('fs')
 
 module.exports = {
     async create(req, res) {
@@ -82,6 +83,59 @@ module.exports = {
             return res.status(200).json(fullDesc)
         } catch (error) {
             return res.status(500).json({ message: error.message })
+        }
+    },
+    async virifyIdentification(req, res) {
+        try {
+            const photo = req.files ? await upLoadImageTemp(req.files) : null
+
+            const users = await User.find().select([
+                'name',
+                'lastName',
+                'descriptor'
+            ])
+            const fullDescAux = {}
+            users.forEach(user => {
+                fullDescAux[user.name] = {
+                    name: `${user.name} ${user.lastName}`,
+                    descriptors: [user.descriptor]
+                }
+            })
+
+            const image = path.join(__dirname, '../temp/', photo)
+
+            const faceMatcher = await createMatcher(fullDescAux)
+
+            const fullDesc = await getFullFaceDescription(image, 160)
+            const descriptors = fullDesc.map(fd => fd.descriptor)
+            const detections = fullDesc.map(fd => fd.detection)
+            const match = descriptors.map(descriptor =>
+                faceMatcher.findBestMatch(descriptor)
+            )
+
+            console.log('fullDesc: ', fullDesc.length)
+            console.log('descriptors: ', descriptors.length)
+            console.log('detections: ', detections.length)
+            console.log('match: ', match.length)
+
+            const identify = detections
+                ? detections.map((detection, i) => {
+                      console.log(i)
+                      return match && match[i] && match[i]._label !== 'unknown'
+                          ? match[i]._label
+                          : 'Desconocido'
+                  })
+                : null
+
+            // console.log(identify)
+
+            fs.unlinkSync(image)
+
+            res.status(200).json({ identify })
+        } catch (error) {
+            return res.status(500).json({
+                message: error.message || 'Error in verify Identification.'
+            })
         }
     }
 }
