@@ -7,6 +7,7 @@ const path = require('path')
 const canvas = require('canvas')
 
 const { Canvas, Image, ImageData } = canvas
+const maxDescriptorDistance = 0.5
 
 exports.loadModels = async () => {
     try {
@@ -35,4 +36,23 @@ exports.getFullFaceDescription = async (blob, inputSize = 512) => {
         .withFaceDescriptors()
 
     return fullDesc
+}
+
+exports.createMatcher = async faceProfile => {
+    const members = Object.keys(faceProfile)
+    const labeledDescriptors = members.map(
+        member =>
+            new faceapi.LabeledFaceDescriptors(
+                faceProfile[member].name,
+                faceProfile[member].descriptors.map(
+                    descriptor => new Float32Array(descriptor)
+                )
+            )
+    )
+
+    const faceMatcher = new faceapi.FaceMatcher(
+        labeledDescriptors,
+        maxDescriptorDistance
+    )
+    return faceMatcher
 }
