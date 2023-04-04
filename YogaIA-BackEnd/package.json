@@ -1,0 +1,46 @@
+{
+    "name": "yogaia-backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "dev": "nodemon app.js",
+        "start": "node app.js",
+        "lint": "eslint . --fix",
+        "prettier": "prettier . --write"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Grover101/YogaIA.git"
+    },
+    "author": "Grover101",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Grover101/YogaIA/issues"
+    },
+    "homepage": "https://github.com/Grover101/YogaIA/blob/backend/YogaIA-BackEnd#readme",
+    "devDependencies": {
+        "eslint": "8.32.0",
+        "eslint-config-prettier": "8.6.0",
+        "eslint-config-standard": "17.0.0",
+        "eslint-plugin-astro": "0.23.0",
+        "eslint-plugin-import": "2.27.5",
+        "eslint-plugin-n": "15.6.1",
+        "eslint-plugin-node": "11.1.0",
+        "eslint-plugin-promise": "6.1.1",
+        "nodemon": "2.0.15",
+        "prettier": "2.5.1"
+    },
+    "dependencies": {
+        "@tensorflow/tfjs-node": "^4.2.0",
+        "canvas": "^2.11.0",
+        "cors": "2.8.5",
+        "dotenv": "16.0.3",
+        "express": "4.18.2",
+        "express-fileupload": "^1.4.0",
+        "face-api.js": "^0.16.1",
+        "mongoose": "6.8.1",
+        "node-fetch": "^3.3.1",
+        "uuid": "9.0.0"
+    }
+}
