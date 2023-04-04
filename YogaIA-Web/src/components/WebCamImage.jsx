@@ -78,7 +78,6 @@ function WebcamImage() {
             formData.append('date', formAux.date.value)
             formData.append('ci', formAux.ci.value)
             formData.append('photo', file)
-            formData.append('descriptor', fullDesc[0].descriptor.toString())
             const message = await fetchAPI(formData)
             console.log(message)
         }

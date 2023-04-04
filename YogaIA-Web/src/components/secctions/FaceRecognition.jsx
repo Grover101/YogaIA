@@ -110,10 +110,6 @@ class FaceRecognition extends Component {
             formData.append('date', form.date.value)
             formData.append('ci', form.ci.value)
             formData.append('photo', this.state.file)
-            formData.append(
-                'descriptor',
-                this.state.fullDesc[0]._descriptor.toString()
-            )
 
             const message = await fetchAPI(formData)
             console.log(message)
