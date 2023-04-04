@@ -43,6 +43,33 @@ const upLoadImage = (
     })
 }
 
+const upLoadImageTemp = (files, extensionValidas = extValid) => {
+    return new Promise((resolve, reject) => {
+        const { photo } = files
+        const nombreCortado = photo.name.split('.')
+        const extension = nombreCortado[nombreCortado.length - 1]
+
+        const extensionSpecial = extension === 'blob' ? 'jpeg' : extension
+        if (!extensionValidas.includes(extensionSpecial.toLowerCase())) {
+            return reject(
+                new Error(
+                    `invalid image format, valid formats are ${extensionValidas}`
+                )
+            )
+        }
+
+        const nombreUuid = uuidv4() + '.' + extensionSpecial
+
+        const uploadPath = path.join(__dirname, '../temp/', nombreUuid)
+        photo.mv(uploadPath, err => {
+            if (err) {
+                return reject(err)
+            }
+            resolve(nombreUuid)
+        })
+    })
+}
+
 const deleteImage = (nameImage, carpeta = '') => {
     if (nameImage) {
         const pathImagen = path.join(
@@ -68,6 +95,7 @@ const getImagePath = (nameImage, carpeta = '') => {
 
 module.exports = {
     upLoadImage,
+    upLoadImageTemp,
     deleteImage,
     getImagePath
 }
