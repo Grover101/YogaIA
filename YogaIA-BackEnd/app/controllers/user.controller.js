@@ -11,12 +11,7 @@ module.exports = {
                 ? await upLoadImage(req.files, 'users')
                 : null
 
-            const image = path.join(
-                __dirname,
-                '../uploads/',
-                'users',
-                'a9523661-360a-49a1-b720-35094de9e52b.jpg'
-            )
+            const image = path.join(__dirname, '../uploads/', 'users', photo)
 
             const fullDesc = await getFullFaceDescription(image)
 
