@@ -3,7 +3,7 @@ import Webcam from 'react-webcam'
 import { Form } from './Form'
 import { getFullFaceDescription } from '../api/face'
 import { fetchAPI } from '../helpers/fetch'
-import { validationFom } from '../helpers/validation'
+import { DataURIToBlob, validationFom } from '../helpers/validation'
 
 function WebcamImage() {
     const [img, setImg] = useState(null)
@@ -27,28 +27,28 @@ function WebcamImage() {
         facingMode: 'user'
     }
 
-    function DataURIToBlob(dataURI) {
-        const splitDataURI = dataURI.split(',')
-        const byteString =
-            splitDataURI[0].indexOf('base64') >= 0
-                ? atob(splitDataURI[1])
-                : decodeURI(splitDataURI[1])
-        const mimeString = splitDataURI[0].split(':')[1].split(';')[0]
-
-        const ia = new Uint8Array(byteString.length)
-        for (let i = 0; i < byteString.length; i++)
-            ia[i] = byteString.charCodeAt(i)
-
-        return new Blob([ia], { type: mimeString })
-    }
-
     const capture = useCallback(async () => {
         const imageSrc = webcamRef.current.getScreenshot()
         setImg(imageSrc)
         const fullCaracter = await getFullFaceDescription(imageSrc)
-        setError(fullCaracter.length !== 1 ? 'No Hay rostro' : null)
+        let fileAux = DataURIToBlob(imageSrc)
+        let message
+        if (fullCaracter.length) {
+            const formData = new FormData()
+            formData.append('photo', fileAux)
+            message = await fetchAPI(formData, '/users/verify')
+            fileAux = !message ? fileAux : null
+        }
+
+        setFile(fileAux)
+        setError(
+            fullCaracter.length !== 1
+                ? 'No Hay rostro'
+                : message
+                ? `Esta persona es ${message.name} ya esta registrada`
+                : null
+        )
         setFullDesc(fullCaracter)
-        setFile(DataURIToBlob(imageSrc))
     }, [webcamRef])
 
     const formData = (key, value) => {
@@ -78,7 +78,7 @@ function WebcamImage() {
             formData.append('date', formAux.date.value)
             formData.append('ci', formAux.ci.value)
             formData.append('photo', file)
-            const message = await fetchAPI(formData)
+            const message = await fetchAPI(formData, '/users')
             console.log(message)
         }
     }
