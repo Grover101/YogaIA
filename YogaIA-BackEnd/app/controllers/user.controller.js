@@ -8,6 +8,16 @@ module.exports = {
     async create(req, res) {
         try {
             const data = req.body
+
+            const userEmail = await User.findOne({ email: data.email }).select([
+                'email'
+            ])
+            const userCi = await User.findOne({ ci: data.ci }).select(['ci'])
+
+            if (userEmail)
+                return res.status(400).json({ error: 'Email ya existe.' })
+            if (userCi) return res.status(400).json({ error: 'CI ya existe.' })
+
             const photo = req.files
                 ? await upLoadImage(req.files, 'users')
                 : null
