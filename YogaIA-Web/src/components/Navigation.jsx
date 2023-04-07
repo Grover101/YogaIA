@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Icons } from './Icons'
 import { LinkRoute } from './Link'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const NAVIGATION_LINKS = [
     {
@@ -41,6 +41,8 @@ const SOCIAL_NETWORKS_LINKS = [
 
 export const Navigation = () => {
     const [open, setOpen] = useState(true)
+    const navigate = useNavigate()
+
     return (
         <aside className="flex flex:row items-center justify-between xl:justify-center text-primary px-4 xl:pb-20 xl:sticky xl:flex-col h-full">
             <Link to="/" className="w-full h-full xl:h-auto py-6">
@@ -67,6 +69,20 @@ export const Navigation = () => {
                             </li>
                         )
                     })}
+                    {localStorage.getItem('login') === 'true' ? (
+                        <li key={`rute-logout`}>
+                            <a
+                                className="group relative py-3 leading-tight font-extrabold transition hover:text-orangeColor text-2xl"
+                                href="#"
+                                onClick={() => {
+                                    localStorage.clear()
+                                    navigate('/')
+                                }}
+                            >
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    ) : null}
                 </ul>
 
                 <div className="flex flex-row items-center justify-center gap-4 py-2">
