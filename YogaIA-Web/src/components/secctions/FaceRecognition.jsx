@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { loadModels, getFullFaceDescription } from './../../api/face'
 import { Form } from './../Form'
 import { fetchAPI } from '../../helpers/fetch'
@@ -32,7 +33,8 @@ class FaceRecognition extends Component {
             ...INIT_STATE,
             ...FORM_STATE,
             WIDTH: null,
-            HEIGHT: 0
+            HEIGHT: 0,
+            errorFetch: null
         }
     }
 
@@ -114,16 +116,27 @@ class FaceRecognition extends Component {
             formData.append('lastName', form.lastName.value)
             formData.append('email', form.email.value)
             formData.append('date', form.date.value)
+            formData.append('genero', form.genero.value)
             formData.append('ci', form.ci.value)
             formData.append('photo', this.state.file)
-
-            const message = await fetchAPI(formData, '/users')
-            console.log(message)
+            const response = await fetchAPI(formData, '/users')
+            if (response?.error)
+                this.setState({
+                    errorFetch: { value: response.error, state: true }
+                })
+            else {
+                this.setState({
+                    errorFetch: { value: 'Usuario Registrado', state: false }
+                })
+                setTimeout(() => {
+                    this.props.history('/evaluate')
+                }, 1000)
+            }
         }
     }
 
     render() {
-        const { imageURL, fullDesc, error, loading } = this.state
+        const { imageURL, fullDesc, error, loading, errorFetch } = this.state
 
         let status = <p className="text-[#0DFCDF]">Verificando...</p>
         if (loading) {
@@ -178,45 +191,56 @@ class FaceRecognition extends Component {
         )
 
         return (
-            <div className="flex mb-4">
-                <div className="w-1/2 text-center">
-                    <div className="flex-row m-auto p-4">
-                        {loading ? (
-                            spinner
-                        ) : imageURL ? (
-                            <div className="text-center m-auto h-[300px]">
-                                <img
-                                    style={{ height: '100%' }}
-                                    src={imageURL}
-                                    alt="imageURL"
-                                    className="m-auto pt-2"
+            <>
+                {errorFetch ? (
+                    <div
+                        className={`rounded w-full m-auto z-10 bg-[${
+                            errorFetch.state ? '#FF0000' : '#25E000'
+                        }] text-white`}
+                    >
+                        {errorFetch.value}
+                    </div>
+                ) : null}
+                <div className="flex mb-4">
+                    <div className="w-1/2 text-center">
+                        <div className="flex-row m-auto p-4">
+                            {loading ? (
+                                spinner
+                            ) : imageURL ? (
+                                <div className="text-center m-auto h-[300px]">
+                                    <img
+                                        style={{ height: '100%' }}
+                                        src={imageURL}
+                                        alt="imageURL"
+                                        className="m-auto pt-2"
+                                    />
+                                </div>
+                            ) : null}
+                            <div className="mt-1 p-1">
+                                <label className="block mb-2 text-xl font-medium text-orangeColor dark:text-white bg-transparent">
+                                    {status}
+                                </label>
+                                <input
+                                    className="relative m-0 block w-full min-w-0 flex-auto rounded border-2 border-solid border-orangeColor bg-clip-padding py-[0.32rem] px-3 text-base font-normal text-white transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-orangeColor file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[margin-inline-end:0.75rem] file:[border-inline-end-width:1px] hover:file:bg-orangeColor focus:border-primary focus:text-whitefocus:shadow-[0_0_0_1px] focus:shadow-primary focus:outline-none "
+                                    id="myFileUpload"
+                                    type="file"
+                                    onChange={this.handleFileChange}
+                                    accept=".jpg, .jpeg, .png"
                                 />
                             </div>
-                        ) : null}
-                        <div className="mt-1 p-1">
-                            <label className="block mb-2 text-xl font-medium text-orangeColor dark:text-white bg-transparent">
-                                {status}
-                            </label>
-                            <input
-                                className="relative m-0 block w-full min-w-0 flex-auto rounded border-2 border-solid border-orangeColor bg-clip-padding py-[0.32rem] px-3 text-base font-normal text-white transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-orangeColor file:px-3 file:py-[0.32rem] file:text-white file:transition file:duration-150 file:ease-in-out file:[margin-inline-end:0.75rem] file:[border-inline-end-width:1px] hover:file:bg-orangeColor focus:border-primary focus:text-whitefocus:shadow-[0_0_0_1px] focus:shadow-primary focus:outline-none "
-                                id="myFileUpload"
-                                type="file"
-                                onChange={this.handleFileChange}
-                                accept=".jpg, .jpeg, .png"
-                            />
                         </div>
                     </div>
+                    <div className="w-2/4">
+                        <Form
+                            form={this.state.form}
+                            formState={this.formData}
+                            register={this.register}
+                        />
+                    </div>
                 </div>
-                <div className="w-2/4">
-                    <Form
-                        form={this.state.form}
-                        formState={this.formData}
-                        register={this.register}
-                    />
-                </div>
-            </div>
+            </>
         )
     }
 }
 
-export default FaceRecognition
+export default props => <FaceRecognition history={useNavigate()} />

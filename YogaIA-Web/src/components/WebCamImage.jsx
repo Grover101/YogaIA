@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
+import { useNavigate } from 'react-router-dom'
 import { Form } from './Form'
 import { getFullFaceDescription } from '../api/face'
 import { fetchAPI } from '../helpers/fetch'
@@ -18,7 +19,9 @@ function WebcamImage() {
     const [file, setFile] = useState(null)
     const [fullDesc, setFullDesc] = useState([])
     const [error, setError] = useState(null)
+    const [errorFetch, setErrorFetch] = useState(null)
 
+    const navigate = useNavigate()
     const webcamRef = useRef(null)
 
     const videoConstraints = {
@@ -76,64 +79,84 @@ function WebcamImage() {
             formData.append('lastName', formAux.lastName.value)
             formData.append('email', formAux.email.value)
             formData.append('date', formAux.date.value)
+            formData.append('genero', formAux.genero.value)
             formData.append('ci', formAux.ci.value)
             formData.append('photo', file)
-            const message = await fetchAPI(formData, '/users')
-            console.log(message)
+            const response = await fetchAPI(formData, '/users')
+            if (response?.error)
+                setErrorFetch({ value: response.error, state: true })
+            else {
+                setErrorFetch({ value: 'Usuario Registrado', state: false })
+                setTimeout(() => {
+                    navigate('/evaluate')
+                }, 1000)
+            }
         }
     }
 
     return (
-        <div className="flex mb-4">
-            <div className="w-1/2 text-center ">
-                <div className="w-full">
-                    {img === null ? (
-                        <Webcam
-                            className="m-auto  left-0 right-0 "
-                            audio={false}
-                            mirrored={true}
-                            height={400}
-                            width={400}
-                            ref={webcamRef}
-                            screenshotFormat="image/jpeg"
-                            videoConstraints={videoConstraints}
-                        />
-                    ) : (
-                        <img
-                            className="m-auto  left-0 right-0"
-                            src={img}
-                            alt="screenshot"
-                        />
-                    )}
-                    {error ? (
-                        <p className="block mt-2 text-xl font-medium text-[#ff0000] dark:text-white bg-transparent">
-                            {error}
-                        </p>
-                    ) : (
-                        <></>
-                    )}
-                    <button
-                        className="text-sm mt-2 transition font-semibold border rounded-lg px-6 py-2 text-primary hover:border-orangeColor hover:bg-transparent text-white border-orangeColor bg-orangeColor w-4/12 top-48 m-auto"
-                        onClick={
-                            img === null
-                                ? capture
-                                : () => {
-                                      setImg(null)
-                                      setFile(null)
-                                      setFullDesc([])
-                                      setError(null)
-                                  }
-                        }
-                    >
-                        {img === null ? 'Capturar Foto' : 'Volver a Tomar'}
-                    </button>
+        <>
+            {errorFetch ? (
+                <div
+                    className={`rounded w-full m-auto z-10 bg-[${
+                        errorFetch.state ? '#FF0000' : '#25E000'
+                    }] text-white`}
+                >
+                    {errorFetch.value}
+                </div>
+            ) : null}
+            <div className="flex mb-4">
+                <div className="w-1/2 text-center ">
+                    <div className="w-full">
+                        {img === null ? (
+                            <Webcam
+                                className="m-auto  left-0 right-0 "
+                                audio={false}
+                                mirrored={true}
+                                height={400}
+                                width={400}
+                                ref={webcamRef}
+                                screenshotFormat="image/jpeg"
+                                videoConstraints={videoConstraints}
+                            />
+                        ) : (
+                            <img
+                                className="m-auto  left-0 right-0"
+                                src={img}
+                                alt="screenshot"
+                            />
+                        )}
+                        {error ? (
+                            <p className="block mt-2 text-xl font-medium text-[#ff0000] dark:text-white bg-transparent">
+                                {error}
+                            </p>
+                        ) : null}
+                        <button
+                            className="text-sm mt-2 transition font-semibold border rounded-lg px-6 py-2 text-primary hover:border-orangeColor hover:bg-transparent text-white border-orangeColor bg-orangeColor w-4/12 top-48 m-auto"
+                            onClick={
+                                img === null
+                                    ? capture
+                                    : () => {
+                                          setImg(null)
+                                          setFile(null)
+                                          setFullDesc([])
+                                          setError(null)
+                                      }
+                            }
+                        >
+                            {img === null ? 'Capturar Foto' : 'Volver a Tomar'}
+                        </button>
+                    </div>
+                </div>
+                <div className="w-2/4">
+                    <Form
+                        form={form}
+                        formState={formData}
+                        register={register}
+                    />
                 </div>
             </div>
-
-            <div className="w-2/4">
-                <Form form={form} formState={formData} register={register} />
-            </div>
-        </div>
+        </>
     )
 }
 
