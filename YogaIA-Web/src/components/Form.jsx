@@ -15,7 +15,7 @@ export const Form = ({ form, formState, register }) => {
                         Nombre
                     </label>
                     <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white text-xs"
+                        className="appearance-none block w-full border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white text-xs"
                         id="grid-first-name"
                         type="text"
                         placeholder="Juan"
@@ -31,9 +31,7 @@ export const Form = ({ form, formState, register }) => {
                         <p className="text-[#ff0000] text-xs italic">
                             {name.error}
                         </p>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
                 <div className="w-full md:w-1/2 px-3">
                     <label
@@ -43,7 +41,7 @@ export const Form = ({ form, formState, register }) => {
                         Apellido
                     </label>
                     <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white text-xs"
+                        className="appearance-none block w-full border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white text-xs"
                         id="grid-last-name"
                         type="text"
                         placeholder="Perez"
@@ -59,9 +57,7 @@ export const Form = ({ form, formState, register }) => {
                         <p className="text-[#ff0000] text-xs italic">
                             {lastName.error}
                         </p>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
             </div>
             <div className="flex flex-wrap -mx-3 mb-4">
@@ -73,7 +69,7 @@ export const Form = ({ form, formState, register }) => {
                         Correo
                     </label>
                     <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-orangeColor text-xs"
+                        className="appearance-none block w-full border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-orangeColor text-xs"
                         id="grid-password"
                         type="email"
                         placeholder="juan@gmail.com"
@@ -89,9 +85,7 @@ export const Form = ({ form, formState, register }) => {
                         <p className="text-[#ff0000] text-xs italic">
                             {email.error}
                         </p>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
                 <div className="w-full md:w-1/2 px-3">
                     <label
@@ -101,14 +95,14 @@ export const Form = ({ form, formState, register }) => {
                         Ci
                     </label>
                     <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white text-xs"
+                        className="appearance-none block w-full border border-orangeColor rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white text-xs"
                         id="grid-last-name"
                         type="text"
                         placeholder="12345678CH"
                         value={ci.value}
                         onChange={e => {
                             formState('ci', {
-                                value: e.target.value,
+                                value: e.target.value.toUpperCase(),
                                 error: null
                             })
                         }}
@@ -117,9 +111,7 @@ export const Form = ({ form, formState, register }) => {
                         <p className="text-[#ff0000] text-xs italic">
                             {ci.error}
                         </p>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
             </div>
             <div className="flex flex-wrap -mx-3 mb-4">
@@ -131,13 +123,13 @@ export const Form = ({ form, formState, register }) => {
                         Fecha de Nacimiento
                     </label>
                     <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-orangeColor rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-orangeColor"
+                        className="appearance-none block w-full border border-orangeColor rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-orangeColor text-xs"
                         id="grid-city"
                         type="date"
                         placeholder="Albuquerque"
                         value={date.value}
                         onChange={e => {
-                            formState('date ', {
+                            formState('date', {
                                 value: e.target.value,
                                 error: null
                             })
@@ -151,9 +143,9 @@ export const Form = ({ form, formState, register }) => {
                     >
                         Genero
                     </label>
-                    <div className="relative">
+                    <div className="relative text-xs">
                         <select
-                            className="block appearance-none w-full bg-gray-200 border border-orangeColor text-blckGray py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                            className="block appearance-none w-full h-full border border-orangeColor text-blckGray py-3 px-4 rounded leading-tight focus:outline-none"
                             id="grid-state"
                             select={genero.value}
                             onChange={e => {
@@ -167,7 +159,7 @@ export const Form = ({ form, formState, register }) => {
                             <option>Masculino</option>
                             <option>Femenino</option>
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-orangeColor">
                             <svg
                                 className="fill-current h-4 w-4"
                                 xmlns="http://www.w3.org/2000/svg"
