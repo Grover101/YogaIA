@@ -14,14 +14,7 @@ export const SignIn = () => {
                     Uso de Camara, una vez identificado compruebe sus datos.
                 </p>
             </div>
-            <div className="flex mt-10">
-                <div className="w-2/4 p-2 text-center">
-                    <CameraFaceDetect />
-                </div>
-                <div className="w-2/4 p-2 text-center">
-                    Mostrar detalles del Usuario identificado.
-                </div>
-            </div>
+            <CameraFaceDetect />
         </>
     )
 }
