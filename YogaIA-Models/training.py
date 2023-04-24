@@ -105,3 +105,39 @@ def preprocess_data(X_train):
             tf.convert_to_tensor(X_train.iloc[i]), (1, 51)))  # 1, 34  sin score, con score 51
         processed_X_train.append(tf.reshape(embedding, (34)))
     return tf.convert_to_tensor(processed_X_train)
+
+
+X, y, class_names = load_csv('train_data.csv')
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.15)
+X_test, y_test, _ = load_csv('test_data.csv')
+
+processed_X_train = preprocess_data(X_train)
+processed_X_val = preprocess_data(X_val)
+processed_X_test = preprocess_data(X_test)
+
+inputs = tf.keras.Input(shape=(34))
+layer = keras.layers.Dense(128, activation=tf.nn.relu6)(inputs)
+layer = keras.layers.Dropout(0.5)(layer)
+layer = keras.layers.Dense(64, activation=tf.nn.relu6)(layer)
+layer = keras.layers.Dropout(0.5)(layer)
+outputs = keras.layers.Dense(len(class_names), activation="softmax")(layer)
+
+model = keras.Model(inputs, outputs)
+
+
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Add a checkpoint callback to store the checkpoint that has the highest
+# validation accuracy.
+checkpoint_path = "weights.best.hdf5"
+checkpoint = keras.callbacks.ModelCheckpoint(checkpoint_path,
+                                             monitor='val_accuracy',
+                                             verbose=1,
+                                             save_best_only=True,
+                                             mode='max')
+earlystopping = keras.callbacks.EarlyStopping(monitor='val_accuracy',
+                                              patience=20)
