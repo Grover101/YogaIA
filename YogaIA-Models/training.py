@@ -141,3 +141,17 @@ checkpoint = keras.callbacks.ModelCheckpoint(checkpoint_path,
                                              mode='max')
 earlystopping = keras.callbacks.EarlyStopping(monitor='val_accuracy',
                                               patience=20)
+
+# Start training
+print('--------------TRAINING----------------')
+history = model.fit(processed_X_train, y_train,
+                    epochs=200,
+                    batch_size=16,
+                    validation_data=(processed_X_val, y_val),
+                    callbacks=[checkpoint, earlystopping])
+
+print('-----------------EVALUATION----------------')
+loss, accuracy = model.evaluate(processed_X_test, y_test)
+# loss, accuracy = model.evaluate(X_test, y_test)
+print('LOSS: ', loss)
+print("ACCURACY: ", accuracy)
