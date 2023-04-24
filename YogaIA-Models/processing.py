@@ -41,6 +41,66 @@ class Preprocessor(object):
             [n for n in os.listdir(images_in_folder)]
         )
 
+    def process(self, detection_threshold=0.1):
+        # Procesamiento de imagenes en una ruta
+        for pose_class_name in self._pose_class_names:
+            # ruta de clases por pose
+            print('Procesando '+pose_class_name + ' ' + self._state)
+            images_in_folder = os.path.join(
+                self._images_in_folder, pose_class_name)
+            csv_out_path = os.path.join(
+                self._csvs_out_folder_per_class, pose_class_name + '.csv')
+            # Deteccion de punto por imagen guardando en un csv
+            with open(csv_out_path, 'w') as csv_out_file:
+                csv_out_writer = csv.writer(
+                    csv_out_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+                # Lista de imagenes ordenadas
+                image_names = sorted([n for n in os.listdir(images_in_folder)])
+                valid_image_count = 0
+                # Detecta puntos de resferencia de pose por cada imagen
+                for image_name in tqdm.tqdm(image_names):
+                    image_path = os.path.join(images_in_folder, image_name)
+
+                    try:
+                        image = tf.io.read_file(image_path)
+                        image = tf.io.decode_jpeg(image)
+                    except:
+                        self._message.append(
+                            'Skipped ' + image_path + ' Imagen invalida')
+                        continue
+
+                    # Saltar imagenes que no son RGB
+                    if image.shape[2] != 3:
+                        self._message.append(
+                            'Skipped ' + image_path + ' La imagen no esta en RGB')
+                        continue
+
+                    # Deteccion de puntos de la postura
+                    person = detect(image)
+
+                    # Guardar los puntos de referencia que estan encima del umbral
+                    min_landmark_score = min(
+                        [keypoint.score for keypoint in person.keypoints])
+                    should_keep_image = min_landmark_score >= detection_threshold
+                    if not should_keep_image:
+                        self._message.append(
+                            'Skipped ' + image_path + ' La puntuacion de puntos clave esta por debajo del umbral')
+                        continue
+
+                    valid_image_count += 1
+
+                    # Obtenga puntos de referencia y escalelos al mismo tamaño que la imagen de entrada
+                    pose_landmarks = np.array([[keypoint.coordinate.x, keypoint.coordinate.y, keypoint.score]
+                                              for keypoint in person.keypoints], dtype=np.float32)
+
+                    # Escribir las coordenadas del punto de referencia en sus archivos csv
+                    coord = pose_landmarks.flatten().astype(np.str).tolist()
+                    csv_out_writer.writerow([image_name] + coord)
+
+        # Fusionando todos los csv para cada clase en un solo archivo csv
+        all_landmarks_df = self.all_landmarks_as_dataframe()
+        all_landmarks_df.to_csv(self._csvs_out_path, index=False)
+
     def all_landmarks_as_dataframe(self):
         total_df = None
         for index, class_name in enumerate(self._pose_class_names):
