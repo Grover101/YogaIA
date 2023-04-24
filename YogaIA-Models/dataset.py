@@ -50,4 +50,7 @@ def creacion_dataset(path_images='img'):
 
 
 if __name__ == '__main__':
-    creacion_dataset()
+    if len(sys.argv) == 2 and sys.argv[1] == 'augmentation':
+        creacion_dataset('dataset_augmentation')
+    else:
+        creacion_dataset()
