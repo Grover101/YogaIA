@@ -138,3 +138,28 @@ class Preprocessor(object):
         total_df.rename(header_map, axis=1, inplace=True)
 
         return total_df
+
+
+route_root = os.getcwd()
+route_dataset = os.path.join(route_root, 'dataset')
+
+# Procesamiento de dataos para train en un archivo .csv
+images_in_folder = os.path.join(route_dataset, 'train')
+# print(images_in_folder)
+csv_path = 'train_data.csv'
+train_preprocessor = Preprocessor(
+    images_in_folder,
+    csv_path,
+    'train'
+)
+train_preprocessor.process()
+
+# Procesamiento de dataos para test en un archivo .csv
+images_in_folder = os.path.join(route_dataset, 'test')
+csv_path = 'test_data.csv'
+test_preprocessor = Preprocessor(
+    images_in_folder,
+    csv_path,
+    'test'
+)
+test_preprocessor.process()
