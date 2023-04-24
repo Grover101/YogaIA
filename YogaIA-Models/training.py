@@ -5,7 +5,7 @@ from data import BodyPart
 import tensorflow as tf
 import tensorflowjs as tfjs
 
-tfjs_model_dir = 'model'
+tfjs_model_dir = 'models/pose_points'
 
 
 # loading final csv file
