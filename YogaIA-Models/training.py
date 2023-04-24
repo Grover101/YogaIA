@@ -3,6 +3,7 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from data import BodyPart
 import tensorflow as tf
+import tensorflowjs as tfjs
 
 tfjs_model_dir = 'model'
 
@@ -155,3 +156,7 @@ loss, accuracy = model.evaluate(processed_X_test, y_test)
 # loss, accuracy = model.evaluate(X_test, y_test)
 print('LOSS: ', loss)
 print("ACCURACY: ", accuracy)
+
+
+tfjs.converters.save_keras_model(model, tfjs_model_dir)
+print('tfjs model saved at ', tfjs_model_dir)
