@@ -45,3 +45,14 @@ export const DataURIToBlob = dataURI => {
 
     return new Blob([ia], { type: mimeString })
 }
+
+export const yearOld = date => {
+    const dateBorn = new Date(date)
+    const dateNow = new Date()
+
+    dateNow.setDate(dateNow.getDate())
+    dateNow.setMonth(dateNow.getMonth())
+    dateNow.setFullYear(dateNow.getFullYear())
+
+    return Math.floor((dateNow - dateBorn) / (1000 * 60 * 60 * 24) / 365)
+}
