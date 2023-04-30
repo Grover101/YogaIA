@@ -300,6 +300,62 @@ export const Evaluation = () => {
         }
     }
 
+    const calculate = () => {
+        // console.log(poseCorrect.length)
+        // console.log(poseCorrect)
+        let sum = []
+        let sum1 = 0
+        for (let i = 0; i < poseList.length; i++) {
+            sum1 = 0
+            for (let j = 0; j < poseCorrect.length; j++) {
+                sum1 += poseCorrect[j][i]
+            }
+            sum[i] = sum1
+        }
+        console.log('suma: ', sum)
+        sum = sum.map(item => item / poseCorrect.length)
+        console.log('suma promediado: ', sum)
+        let mayor = -Infinity
+        let index = 0
+        for (let i = 0; i < sum.length; i++) {
+            if (sum[i] > mayor) {
+                mayor = sum[i]
+                index = i
+            }
+        }
+
+        poseEnd.name = poseList[index]
+        poseEnd.porcentaje = (sum[index] * 100).toFixed(2)
+        poseEnd.bestPorcentaje =
+            poseEnd.bestPorcentaje > poseEnd.porcentaje
+                ? poseEnd
+                : poseEnd.porcentaje
+        poseEnd.time = poseEnd.time.setHours(hours, minutes, seconds)
+        poseEnd.bestTime =
+            poseEnd.bestTime.getTime() > poseEnd.time.getTime()
+                ? poseEnd.bestTime.getTime()
+                : poseEnd.time.getTime()
+        poseEnd.image = imgPose[poseEnd.name]
+    }
+
+    const stopPose = () => {
+        console.log('termina')
+        end = true
+        const ctx = canvasRef.current.getContext('2d')
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+        // setPoseTime(0)
+        // pause()
+        clearInterval(interval)
+        calculate()
+        // setResetPlay(true)
+        // window.location.reload()
+    }
+
+    // function resetPose() {
+    //     console.log('restar')
+    //     end = false
+    // }
+
     return (
         <>
             <h1 className="text-6xl font-semibold ">
