@@ -72,6 +72,72 @@ export const Evaluation = () => {
         facingMode: 'user'
     }
 
+    function getCenterPoint(landmarks, leftBodyPart, rightBodyPart) {
+        const left = tf.gather(landmarks, leftBodyPart, 1)
+        const right = tf.gather(landmarks, rightBodyPart, 1)
+        const center = tf.add(tf.mul(left, 0.5), tf.mul(right, 0.5))
+
+        return center
+    }
+
+    function getPoseSize(landmarks, torsoSizeMultiplier = 2.5) {
+        const hipsCenter = getCenterPoint(
+            landmarks,
+            POINTS.LEFT_HIP,
+            POINTS.RIGHT_HIP
+        )
+        const shouldersCenter = getCenterPoint(
+            landmarks,
+            POINTS.LEFT_SHOULDER,
+            POINTS.RIGHT_SHOULDER
+        )
+        const torsoSize = tf.norm(tf.sub(shouldersCenter, hipsCenter))
+
+        let poseCenterNew = getCenterPoint(
+            landmarks,
+            POINTS.LEFT_HIP,
+            POINTS.RIGHT_HIP
+        )
+        poseCenterNew = tf.expandDims(poseCenterNew, 1)
+
+        poseCenterNew = tf.broadcastTo(poseCenterNew, [1, 17, 2])
+        // return: shape(17,2)
+        const d = tf.gather(tf.sub(landmarks, poseCenterNew), 0, 0)
+        const distMax = tf.max(tf.norm(d, 'euclidean', 0))
+
+        // normalize scale
+        const poseSize = tf.maximum(
+            tf.mul(torsoSize, torsoSizeMultiplier),
+            distMax
+        )
+        // console.log('pose Size: ', poseSize)
+        return poseSize
+    }
+
+    function normalizePoseLandmarks(landmarks) {
+        let poseCenter = getCenterPoint(
+            landmarks,
+            POINTS.LEFT_HIP,
+            POINTS.RIGHT_HIP
+        )
+        poseCenter = tf.expandDims(poseCenter, 1)
+        poseCenter = tf.broadcastTo(poseCenter, [1, 17, 2])
+        landmarks = tf.sub(landmarks, poseCenter)
+
+        const poseSize = getPoseSize(landmarks)
+        landmarks = tf.div(landmarks, poseSize)
+        // console.log('landmarks normalize: ', landmarks)
+        return landmarks
+    }
+
+    function landmarksToEmbedding(landmarks) {
+        // normalize landmarks 2D
+        landmarks = normalizePoseLandmarks(tf.expandDims(landmarks, 0))
+        const embedding = tf.reshape(landmarks, [1, 34])
+        // const embedding = tf.reshape(landmarks, [1, 1, 34])
+        return embedding
+    }
+
     return (
         <>
             <h1 className="text-6xl font-semibold ">
