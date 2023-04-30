@@ -138,6 +138,168 @@ export const Evaluation = () => {
         return embedding
     }
 
+    useEffect(() => {
+        runMoveNet()
+    }, [])
+
+    const runMoveNet = async () => {
+        const detectorConfig = {
+            modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER
+        }
+        const detector = await poseDetection.createDetector(
+            poseDetection.SupportedModels.MoveNet,
+            detectorConfig
+        )
+        // carga de modelo
+        const poseClassifier = await tf.loadLayersModel(
+            'http://localhost:9000/poses/model.json'
+        )
+
+        interval = setInterval(() => {
+            detectPose(detector, poseClassifier)
+        }, 100)
+    }
+
+    const detectPose = async (detector, poseClassifier) => {
+        // console.log(end)
+        if (!end) {
+            if (
+                typeof webcam.current !== 'undefined' &&
+                webcam.current !== null &&
+                webcam.current.video.readyState === 4
+            ) {
+                let notDetected = 0
+                const video = webcam.current.video
+                const pose = await detector.estimatePoses(video)
+                const ctx = canvasRef.current.getContext('2d')
+                ctx.clearRect(
+                    0,
+                    0,
+                    canvasRef.current.width,
+                    canvasRef.current.height
+                )
+                try {
+                    const keypoints = pose[0].keypoints
+                    const input = keypoints.map(keypoint => {
+                        if (keypoint.score > 0.4) {
+                            if (
+                                !(
+                                    keypoint.name === 'left_eye' ||
+                                    keypoint.name === 'right_eye'
+                                )
+                            ) {
+                                drawPoint(
+                                    ctx,
+                                    keypoint.x,
+                                    keypoint.y,
+                                    8,
+                                    'rgb(255,255,255)'
+                                )
+                                const connections =
+                                    keyPointConnections[keypoint.name]
+                                try {
+                                    connections.forEach(connection => {
+                                        const conName = connection.toUpperCase()
+                                        drawSegment(
+                                            ctx,
+                                            [keypoint.x, keypoint.y],
+                                            [
+                                                keypoints[POINTS[conName]].x,
+                                                keypoints[POINTS[conName]].y
+                                            ],
+                                            skeletonColor
+                                        )
+                                    })
+                                } catch (err) {
+                                    // console.log(err)
+                                }
+                            }
+                        } else {
+                            notDetected += 1
+                        }
+                        return [keypoint.x, keypoint.y]
+                    })
+                    if (notDetected > 4) {
+                        skeletonColor = 'rgb(255,255,255)'
+                        pause()
+                        // poseCorrect = []
+                        flag = false
+
+                        return
+                    }
+                    const processedInput = landmarksToEmbedding(input)
+                    const classification =
+                        poseClassifier.predict(processedInput)
+
+                    classification.array().then(data => {
+                        console.log(data[0])
+                        // const classNo = CLASS_NO[currentPose]
+                        // console.log(data[0][classNo])/
+                        // setCurrentTime(new Date(Date()).getTime())
+                        if (!flag) {
+                            // setStartingTime(new Date(Date()).getTime())
+                            reset()
+                            flag = true
+                            // 'Chair',
+                            //     'Chakravakasana',
+                            //     'Cobra',
+                            //     'DwiPadaViparitaDandasana',
+                            //     'Shoudler',
+                            //     'Traingle',
+                            //     'Tree',
+                            //     'Warrior'
+                        } else if (data[0][0] > 0.97) {
+                            // Chair
+                            skeletonColor = 'rgb(0,255,0)' // Green
+                            poseCorrect.push(data[0])
+                            setPose(poseList[0])
+                        } else if (data[0][1] > 0.97) {
+                            // Chakravakasana
+                            skeletonColor = 'rgb(0,0,255)' // Blue
+                            poseCorrect.push(data[0])
+                            setPose(poseList[1])
+                        } else if (data[0][2] > 0.97) {
+                            // Cobra
+                            skeletonColor = 'rgb(255,255,0)' // Yellow
+                            setPose(poseList[2])
+                            poseCorrect.push(data[0])
+                        } else if (data[0][3] > 0.97) {
+                            // DwiPadaViparitaDandasana
+                            skeletonColor = 'rgb(255,0,255)' // Rose
+                            setPose(poseList[3])
+                            poseCorrect.push(data[0])
+                        } else if (data[0][4] > 0.97) {
+                            // Shoudler
+                            skeletonColor = 'rgb(255,165,0)' // Orange
+                            setPose(poseList[4])
+                            poseCorrect.push(data[0])
+                        } else if (data[0][5] > 0.97) {
+                            // Traingle
+                            skeletonColor = 'rgb(0,255,255)' // Light Blue
+                            setPose(poseList[5])
+                            poseCorrect.push(data[0])
+                        } else if (data[0][6] > 0.97) {
+                            // Tree
+                            skeletonColor = 'rgb(128,0,128)' // Purple
+                            setPose(poseList[6])
+                            poseCorrect.push(data[0])
+                        } else if (data[0][7] > 0.97) {
+                            // Warrior
+                            skeletonColor = 'rgb(128,128,128)' // Gray
+                            setPose(poseList[7])
+                            poseCorrect.push(data[0])
+                        } else {
+                            skeletonColor = 'rgb(255,255,255)'
+                            // poseCorrect.push(data[0])
+                        }
+                    })
+                } catch (err) {
+                    console.log(err)
+                }
+            }
+        }
+    }
+
     return (
         <>
             <h1 className="text-6xl font-semibold ">
