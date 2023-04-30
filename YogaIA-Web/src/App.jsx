@@ -7,6 +7,7 @@ import './styles/App.css'
 import { Profile } from './components/secctions/Profile'
 import { SignUp } from './components/secctions/SignUp'
 import { SignIn } from './components/secctions/SignIn'
+import Yoga from './components/secctions/Yoga'
 
 const App = () => {
     return (
@@ -24,6 +25,7 @@ const App = () => {
                             <Route path="/login" element={<SignIn />} />
                             <Route path="/register" element={<SignUp />} />
                             <Route path="/profile" element={<Profile />} />
+                            <Route path="/yoga" element={<Yoga />} />
                         </Routes>
                     </div>
                 </div>
