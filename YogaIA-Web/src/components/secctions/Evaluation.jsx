@@ -7,9 +7,52 @@ import { Link } from 'react-router-dom'
 
 import { Icons } from './../Icons'
 import { yearOld } from '../../helpers/validation'
+import { POINTS, keyPointConnections } from '../../utils/data'
+import { drawPoint, drawSegment } from '../../utils/helper'
+
+import tree from '../../assets/tree.jpg'
+import traingle from '../../assets/traingle.jpg'
+import warrior from '../../assets/warrior.jpg'
+import chair from '../../assets/chair.jpg'
 
 const WIDTH = 640
 const HEIGHT = 480
+
+let skeletonColor = 'rgb(255,255,255)'
+const imgPose = {
+    Chair: chair,
+    Chakravakasana: chair,
+    Cobra: chair,
+    DwiPadaViparitaDandasana: chair,
+    Shoudler: chair,
+    Traingle: traingle,
+    Tree: tree,
+    Warrior: warrior
+}
+const poseList = [
+    'Chair',
+    'Chakravakasana',
+    'Cobra',
+    'DwiPadaViparitaDandasana',
+    'Shoudler',
+    'Traingle',
+    'Tree',
+    'Warrior'
+]
+
+let flag = false
+let end = false
+let interval
+const poseEnd = {
+    position: 0,
+    name: 'Ninguno',
+    porcentaje: 0,
+    time: new Date('August 19, 1975 0:0:0'),
+    bestPorcentaje: 0,
+    bestTime: new Date('August 19, 1975 0:0:0'),
+    image: null
+}
+let poseCorrect = []
 
 export const Evaluation = () => {
     const webcam = useRef(null)
@@ -100,6 +143,38 @@ export const Evaluation = () => {
                         <div>
                             <Icons.warrior className="m-auto" />
                         </div>
+                        <ul className="mt-5">
+                            <li>
+                                Mejor Tiempo:
+                                {poseEnd.bestTime.getHours() < 10
+                                    ? ` 0${poseEnd.bestTime.getHours()}`
+                                    : poseEnd.bestTime.getHours()}
+                                :
+                                {poseEnd.bestTime.getMinutes() < 10
+                                    ? `0${poseEnd.bestTime.getMinutes()}`
+                                    : poseEnd.bestTime.getMinutes()}
+                                :
+                                {poseEnd.bestTime.getSeconds() < 10
+                                    ? `0${poseEnd.bestTime.getSeconds()}`
+                                    : poseEnd.bestTime.getSeconds()}
+                            </li>
+                            <li>
+                                Tiempo:
+                                {poseEnd.time.getHours() < 10
+                                    ? ` 0${poseEnd.time.getHours()}`
+                                    : poseEnd.time.getHours()}
+                                :
+                                {poseEnd.time.getMinutes() < 10
+                                    ? `0${poseEnd.time.getMinutes()}`
+                                    : poseEnd.time.getMinutes()}
+                                :
+                                {poseEnd.time.getSeconds() < 10
+                                    ? `0${poseEnd.time.getSeconds()}`
+                                    : poseEnd.time.getSeconds()}
+                            </li>
+                            <li>Mejor Evaluacion: {poseEnd.bestPorcentaje}%</li>
+                            <li>Evaluacion: {poseEnd.porcentaje}%</li>
+                        </ul>
                     </div>
                 </div>
             </div>
