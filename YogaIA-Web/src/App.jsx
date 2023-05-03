@@ -7,28 +7,37 @@ import './styles/App.css'
 import { Profile } from './components/secctions/Profile'
 import { SignUp } from './components/secctions/SignUp'
 import { SignIn } from './components/secctions/SignIn'
+import Yoga from './components/secctions/Yoga'
+import { Toaster } from './components/Toaster'
 
 const App = () => {
     return (
-        <div className="flex">
-            <Router>
-                <div className="w-72 bg-slate-600 h-screen p-5  pt-8 relative duration-300">
-                    <Navigation />
-                </div>
-                <div className="starfield w-full">
-                    <div className="h-screen flex-1 p-16">
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/about" element={<About />} />
-                            <Route path="/evaluate" element={<Evaluate />} />
-                            <Route path="/login" element={<SignIn />} />
-                            <Route path="/register" element={<SignUp />} />
-                            <Route path="/profile" element={<Profile />} />
-                        </Routes>
+        <>
+            <div className="flex">
+                <Router>
+                    <div className="w-72 bg-slate-600 h-screen p-5  pt-8 relative duration-300">
+                        <Navigation />
                     </div>
-                </div>
-            </Router>
-        </div>
+                    <div className="starfield w-full">
+                        <div className="h-screen flex-1 p-16">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/about" element={<About />} />
+                                <Route
+                                    path="/evaluate"
+                                    element={<Evaluate />}
+                                />
+                                <Route path="/login" element={<SignIn />} />
+                                <Route path="/register" element={<SignUp />} />
+                                <Route path="/profile" element={<Profile />} />
+                                <Route path="/yoga" element={<Yoga />} />
+                            </Routes>
+                        </div>
+                    </div>
+                </Router>
+            </div>
+            <Toaster />
+        </>
     )
 }
 
