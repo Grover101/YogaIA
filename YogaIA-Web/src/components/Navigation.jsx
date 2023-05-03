@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Icons } from './Icons'
 import { LinkRoute } from './Link'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 const NAVIGATION_LINKS = [
     {
@@ -77,6 +78,7 @@ export const Navigation = () => {
                                 onClick={() => {
                                     localStorage.clear()
                                     navigate('/')
+                                    toast.success('Logout Success')
                                 }}
                             >
                                 <span>Logout</span>

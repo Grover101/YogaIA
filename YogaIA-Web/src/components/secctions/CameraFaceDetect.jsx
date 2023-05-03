@@ -5,6 +5,7 @@ import { loadModels, getFullFaceDescription } from './../../api/face'
 import { fetchAPI } from '../../helpers/fetch'
 import { DataURIToBlob } from '../../helpers/validation'
 import { DrawBox } from './../DrawBox'
+import { toast } from 'sonner'
 
 const WIDTH = 420
 const HEIGHT = 420
@@ -34,7 +35,10 @@ export const CameraFaceDetect = () => {
         if (user) {
             localStorage.setItem('login', 'true')
             localStorage.setItem('user', JSON.stringify(user))
-            navigate('/evaluate')
+            toast.success('Login Success!!!')
+            setTimeout(() => {
+                navigate('/evaluate')
+            }, 2000)
         }
     }
 
