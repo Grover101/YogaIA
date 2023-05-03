@@ -4,8 +4,8 @@ import * as poseDetection from '@tensorflow-models/pose-detection'
 import * as tf from '@tensorflow/tfjs'
 import { useStopwatch } from 'react-timer-hook'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
-import { Icons } from './../Icons'
 import { yearOld } from '../../helpers/validation'
 import { POINTS, keyPointConnections } from '../../utils/data'
 import { drawPoint, drawSegment } from '../../utils/helper'
@@ -14,6 +14,10 @@ import tree from '../../assets/tree.jpg'
 import traingle from '../../assets/traingle.jpg'
 import warrior from '../../assets/warrior.jpg'
 import chair from '../../assets/chair.jpg'
+import shouldler from '../../assets/shoulder.jpg'
+import chakravakasana from '../../assets/chakravakasana.jpg'
+import dwiPadaViparitaDandasana from '../../assets/dwiPadaViparitaDandasana.jpg'
+import ninguno from '../../assets/ninguno.png'
 
 const WIDTH = 640
 const HEIGHT = 480
@@ -21,10 +25,9 @@ const HEIGHT = 480
 let skeletonColor = 'rgb(255,255,255)'
 const imgPose = {
     Chair: chair,
-    Chakravakasana: chair,
-    Cobra: chair,
-    DwiPadaViparitaDandasana: chair,
-    Shoudler: chair,
+    Chakravakasana: chakravakasana,
+    DwiPadaViparitaDandasana: dwiPadaViparitaDandasana,
+    Shoudler: shouldler,
     Traingle: traingle,
     Tree: tree,
     Warrior: warrior
@@ -32,7 +35,6 @@ const imgPose = {
 const poseList = [
     'Chair',
     'Chakravakasana',
-    'Cobra',
     'DwiPadaViparitaDandasana',
     'Shoudler',
     'Traingle',
@@ -41,18 +43,12 @@ const poseList = [
 ]
 
 let flag = false
+let flag1 = true
 let end = false
-let interval
-const poseEnd = {
-    position: 0,
-    name: 'Ninguno',
-    porcentaje: 0,
-    time: new Date('August 19, 1975 0:0:0'),
-    bestPorcentaje: 0,
-    bestTime: new Date('August 19, 1975 0:0:0'),
-    image: null
-}
-let poseCorrect = []
+var interval
+let timeEnd = false
+
+const poseCorrect = []
 
 export const Evaluation = () => {
     const webcam = useRef(null)
@@ -61,7 +57,17 @@ export const Evaluation = () => {
         autoStart: false
     })
 
-    const [pose, setPose] = useState('')
+    const [infoFinal, setInfoFinal] = useState({
+        // position: 0,
+        name: 'Ninguno',
+        porcentaje: 0,
+        // time: new Date('5/1/23'),
+        // bestPorcentaje: 0,
+        bestTime: new Date('5/1/23')
+        // image: ninguno
+    })
+
+    const [pose, setPose] = useState({ name: 'Ninguno', imagen: ninguno })
 
     // const [resetPlay, setResetPlay] = useState(false)
 
@@ -152,7 +158,7 @@ export const Evaluation = () => {
         )
         // carga de modelo
         const poseClassifier = await tf.loadLayersModel(
-            'http://localhost:9000/poses/model.json'
+            'http://localhost:9000/poses1/model.json'
         )
 
         interval = setInterval(() => {
@@ -221,8 +227,8 @@ export const Evaluation = () => {
                     })
                     if (notDetected > 4) {
                         skeletonColor = 'rgb(255,255,255)'
-                        pause()
                         // poseCorrect = []
+                        pause()
                         flag = false
 
                         return
@@ -232,65 +238,118 @@ export const Evaluation = () => {
                         poseClassifier.predict(processedInput)
 
                     classification.array().then(data => {
-                        console.log(data[0])
+                        // console.log(data[0])
                         // const classNo = CLASS_NO[currentPose]
                         // console.log(data[0][classNo])/
                         // setCurrentTime(new Date(Date()).getTime())
-                        if (!flag) {
-                            // setStartingTime(new Date(Date()).getTime())
-                            reset()
-                            flag = true
-                            // 'Chair',
-                            //     'Chakravakasana',
-                            //     'Cobra',
-                            //     'DwiPadaViparitaDandasana',
-                            //     'Shoudler',
-                            //     'Traingle',
-                            //     'Tree',
-                            //     'Warrior'
-                        } else if (data[0][0] > 0.97) {
+                        if (data[0][0] > 0.97) {
                             // Chair
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
                             skeletonColor = 'rgb(0,255,0)' // Green
                             poseCorrect.push(data[0])
-                            setPose(poseList[0])
+                            setPose({
+                                name: poseList[0],
+                                imagen: imgPose[poseList[0]]
+                            })
                         } else if (data[0][1] > 0.97) {
                             // Chakravakasana
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
                             skeletonColor = 'rgb(0,0,255)' // Blue
                             poseCorrect.push(data[0])
-                            setPose(poseList[1])
+                            setPose({
+                                name: poseList[1],
+                                imagen: imgPose[poseList[1]]
+                            })
                         } else if (data[0][2] > 0.97) {
-                            // Cobra
-                            skeletonColor = 'rgb(255,255,0)' // Yellow
-                            setPose(poseList[2])
+                            // DwiPadaViparitaDandasana
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
+                            skeletonColor = 'rgb(255,0,255)' // Rose
+                            setPose({
+                                name: poseList[2],
+                                imagen: imgPose[poseList[2]]
+                            })
                             poseCorrect.push(data[0])
                         } else if (data[0][3] > 0.97) {
-                            // DwiPadaViparitaDandasana
-                            skeletonColor = 'rgb(255,0,255)' // Rose
-                            setPose(poseList[3])
+                            // Shoudler
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
+                            skeletonColor = 'rgb(255,165,0)' // Orange
+                            setPose({
+                                name: poseList[3],
+                                imagen: imgPose[poseList[3]]
+                            })
                             poseCorrect.push(data[0])
                         } else if (data[0][4] > 0.97) {
-                            // Shoudler
-                            skeletonColor = 'rgb(255,165,0)' // Orange
-                            setPose(poseList[4])
+                            // Traingle
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
+                            skeletonColor = 'rgb(0,255,255)' // Light Blue
+                            setPose({
+                                name: poseList[4],
+                                imagen: imgPose[poseList[4]]
+                            })
                             poseCorrect.push(data[0])
                         } else if (data[0][5] > 0.97) {
-                            // Traingle
-                            skeletonColor = 'rgb(0,255,255)' // Light Blue
-                            setPose(poseList[5])
+                            // Tree
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
+                            skeletonColor = 'rgb(128,0,128)' // Purple
+                            setPose({
+                                name: poseList[5],
+                                imagen: imgPose[poseList[5]]
+                            })
                             poseCorrect.push(data[0])
                         } else if (data[0][6] > 0.97) {
-                            // Tree
-                            skeletonColor = 'rgb(128,0,128)' // Purple
-                            setPose(poseList[6])
-                            poseCorrect.push(data[0])
-                        } else if (data[0][7] > 0.97) {
                             // Warrior
+                            if (!flag) {
+                                // setStartingTime(new Date(Date()).getTime())
+                                reset()
+                                flag = true
+                                flag1 = false
+                            }
                             skeletonColor = 'rgb(128,128,128)' // Gray
-                            setPose(poseList[7])
+                            setPose({
+                                name: poseList[6],
+                                imagen: imgPose[poseList[6]]
+                            })
                             poseCorrect.push(data[0])
                         } else {
                             skeletonColor = 'rgb(255,255,255)'
                             // poseCorrect.push(data[0])
+                            if (!flag1) {
+                                console.log('pause', flag1)
+                                pause()
+                                // calculate()
+                                timeEnd = true
+                            }
+                            flag = false
                         }
                     })
                 } catch (err) {
@@ -301,6 +360,7 @@ export const Evaluation = () => {
     }
 
     const calculate = () => {
+        // pause()
         // console.log(poseCorrect.length)
         // console.log(poseCorrect)
         let sum = []
@@ -312,9 +372,9 @@ export const Evaluation = () => {
             }
             sum[i] = sum1
         }
-        console.log('suma: ', sum)
+        // console.log('suma: ', sum)
         sum = sum.map(item => item / poseCorrect.length)
-        console.log('suma promediado: ', sum)
+        // console.log('suma promediado: ', sum)
         let mayor = -Infinity
         let index = 0
         for (let i = 0; i < sum.length; i++) {
@@ -324,18 +384,49 @@ export const Evaluation = () => {
             }
         }
 
+        // console.log(poseEnd.time, poseEnd.bestTime)
+
+        const poseEnd = infoFinal
+
         poseEnd.name = poseList[index]
         poseEnd.porcentaje = (sum[index] * 100).toFixed(2)
-        poseEnd.bestPorcentaje =
-            poseEnd.bestPorcentaje > poseEnd.porcentaje
-                ? poseEnd
-                : poseEnd.porcentaje
-        poseEnd.time = poseEnd.time.setHours(hours, minutes, seconds)
+        // console.log(poseEnd.porcentaje > infoFinal.bestPorcentaje)
+        // console.log(poseEnd.porcentaje, infoFinal.bestPorcentaje)
+        // console.log(typeof poseEnd.porcentaje, typeof infoFinal.bestPorcentaje)
+        // poseEnd.bestPorcentaje =
+        //     infoFinal.bestPorcentaje > poseEnd.porcentaje
+        //         ? infoFinal.bestPorcentaje
+        //         : poseEnd.porcentaje
+        // console.log(hours, minutes, seconds)
+        // poseEnd.time = poseEnd.time.setHours(hours, minutes, seconds)
+        const time = new Date()
+        time.setHours(hours, minutes, seconds)
+        const bestTime = new Date(infoFinal.bestTime)
+        // // console.log(bestTime.getTime(), time.getTime())
         poseEnd.bestTime =
-            poseEnd.bestTime.getTime() > poseEnd.time.getTime()
-                ? poseEnd.bestTime.getTime()
-                : poseEnd.time.getTime()
-        poseEnd.image = imgPose[poseEnd.name]
+            bestTime.getTime() > time.getTime()
+                ? bestTime.getTime()
+                : time.getTime()
+        // poseEnd.image = imgPose[poseEnd.name]
+
+        // console.log(poseEnd)
+
+        // console.log(poseEnd.time)
+        // console.log(infoFinal)
+        // const timeBest = new Date(bestPerform)
+        // const timeNow = new Date()
+        // timeNow.setHours(hours, minutes, seconds)
+        // console.log(timeBest.getTime() < timeNow.getTime())
+        // if (timeBest.getTime() < timeNow.getTime()) {
+        //     console.log('entra aqui')
+        //     setBestPerform(timeNow.getTime())
+        // }
+        // console.log(timeBest.getTime(), timeNow.getTime())
+
+        setInfoFinal(e => {
+            return { ...poseEnd }
+        })
+        console.log(infoFinal)
     }
 
     const stopPose = () => {
@@ -346,7 +437,9 @@ export const Evaluation = () => {
         // setPoseTime(0)
         // pause()
         clearInterval(interval)
-        calculate()
+        toast.success('Evalucion Gurdada y Finalizada!!!')
+        console.log(JSON.stringify(infoFinal, null, 2))
+        // calculate()
         // setResetPlay(true)
         // window.location.reload()
     }
@@ -355,6 +448,11 @@ export const Evaluation = () => {
     //     console.log('restar')
     //     end = false
     // }
+
+    if (timeEnd) {
+        timeEnd = false
+        calculate()
+    }
 
     return (
         <>
@@ -422,42 +520,42 @@ export const Evaluation = () => {
                 <div className="w-2/4 p-2 flex bg-white rounded-xl">
                     <div className="m-auto text-2xl">
                         <h3 className="text-orangeColor text-center mb-5 font-bold text-4xl">
-                            {pose}
+                            {pose.name}
                         </h3>
-                        <div>
-                            <Icons.warrior className="m-auto" />
+                        <div className="h-80">
+                            <img
+                                src={pose.imagen}
+                                alt={pose.name}
+                                className="m-auto h-full"
+                            />
                         </div>
                         <ul className="mt-5">
                             <li>
-                                Mejor Tiempo:
-                                {poseEnd.bestTime.getHours() < 10
-                                    ? ` 0${poseEnd.bestTime.getHours()}`
-                                    : poseEnd.bestTime.getHours()}
+                                Mejor Tiempo:{' '}
+                                {new Date(infoFinal.bestTime).getHours() < 10
+                                    ? `0${new Date(
+                                          infoFinal.bestTime
+                                      ).getHours()}`
+                                    : new Date(infoFinal.bestTime).getHours()}
                                 :
-                                {poseEnd.bestTime.getMinutes() < 10
-                                    ? `0${poseEnd.bestTime.getMinutes()}`
-                                    : poseEnd.bestTime.getMinutes()}
+                                {new Date(infoFinal.bestTime).getMinutes() < 10
+                                    ? `0${new Date(
+                                          infoFinal.bestTime
+                                      ).getMinutes()}`
+                                    : new Date(infoFinal.bestTime).getMinutes()}
                                 :
-                                {poseEnd.bestTime.getSeconds() < 10
-                                    ? `0${poseEnd.bestTime.getSeconds()}`
-                                    : poseEnd.bestTime.getSeconds()}
+                                {new Date(infoFinal.bestTime).getSeconds() < 10
+                                    ? `0${new Date(
+                                          infoFinal.bestTime
+                                      ).getSeconds()}`
+                                    : new Date(infoFinal.bestTime).getSeconds()}
                             </li>
                             <li>
-                                Tiempo:
-                                {poseEnd.time.getHours() < 10
-                                    ? ` 0${poseEnd.time.getHours()}`
-                                    : poseEnd.time.getHours()}
-                                :
-                                {poseEnd.time.getMinutes() < 10
-                                    ? `0${poseEnd.time.getMinutes()}`
-                                    : poseEnd.time.getMinutes()}
-                                :
-                                {poseEnd.time.getSeconds() < 10
-                                    ? `0${poseEnd.time.getSeconds()}`
-                                    : poseEnd.time.getSeconds()}
+                                Tiempo: {hours < 10 ? `0${hours}` : hours}:
+                                {minutes < 10 ? `0${minutes}` : minutes}:
+                                {seconds < 10 ? `0${seconds}` : seconds}
                             </li>
-                            <li>Mejor Evaluacion: {poseEnd.bestPorcentaje}%</li>
-                            <li>Evaluacion: {poseEnd.porcentaje}%</li>
+                            <li>Evaluacion: {infoFinal.porcentaje}%</li>
                         </ul>
                     </div>
                 </div>
@@ -483,7 +581,7 @@ export const Evaluation = () => {
                     <Link
                         to="/profile"
                         className={`text-sm transition inline-flex items-center  font-semibold border rounded-lg px-6 py-2 text-primary hover:border-orangeColor hover:bg-transparent text-white border-orangeColor bg-orangeColor`}
-                        onClick={stopPose}
+                        // onClick={stopPose}
                     >
                         Ver Historial
                     </Link>
