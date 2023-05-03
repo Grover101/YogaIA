@@ -7,6 +7,7 @@ import chair from '../../assets/chair.jpg'
 import shouldler from '../../assets/shoulder.jpg'
 import chakravakasana from '../../assets/chakravakasana.jpg'
 import dwiPadaViparitaDandasana from '../../assets/dwiPadaViparitaDandasana.jpg'
+import { yearOld } from '../../helpers/validation'
 
 const imgPose = {
     Chair: chair,
@@ -20,6 +21,7 @@ const imgPose = {
 }
 
 export const Profile = () => {
+    const user = JSON.parse(localStorage.getItem('user'))
     const [details, setDetails] = useState({
         timeWeek: { hours: 0, minutes: 8, seconds: 35 },
         exercisePerformed: [
@@ -93,16 +95,19 @@ export const Profile = () => {
                     </div>
                     <div className="mt-4 m-auto w-2/4">
                         <p>
-                            <strong>Usuario: </strong>Grover Limachi
+                            <strong>Usuario: </strong>
+                            {`${user.name} ${user.lastName}`}
                         </p>
                         <p>
-                            <strong>Edad: </strong>22
+                            <strong>Edad: </strong> {yearOld(user.date)}
                         </p>
                         <p>
-                            <strong>Genero: </strong>Masculino
+                            <strong>Genero: </strong>
+                            {user.genero}
                         </p>
                         <p>
-                            <strong>Correo: </strong>email@email.com
+                            <strong>Correo: </strong>
+                            {user.email}
                         </p>
                     </div>
                 </div>
