@@ -56,7 +56,7 @@ module.exports = {
                     name,
                     time: timeString,
                     evaluate: porcentaje,
-                    date: createdAt.toDateString()
+                    date: createdAt.toLocaleString()
                 }
             })
 
