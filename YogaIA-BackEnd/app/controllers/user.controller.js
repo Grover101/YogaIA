@@ -93,9 +93,10 @@ module.exports = {
     },
     async verifyIdentification(req, res) {
         try {
-            const photo = req.files ? await upLoadImageTemp(req.files) : null
-
             const users = await User.find().select(['descriptor'])
+            if (!users.length) return res.status(200).json(null)
+
+            const photo = req.files ? await upLoadImageTemp(req.files) : null
             const fullDescAux = {}
             users.forEach(user => {
                 fullDescAux[user.id] = {
@@ -117,7 +118,9 @@ module.exports = {
                     ? await User.findById(match[0]?._label).select([
                           'name',
                           'lastName',
-                          'email'
+                          'email',
+                          'date',
+                          'genero'
                       ])
                     : null
 
