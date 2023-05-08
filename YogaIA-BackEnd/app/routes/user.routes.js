@@ -7,5 +7,6 @@ router.get('/description', UserController.description)
 router.post('/verify', UserController.verifyIdentification)
 router.post('/', UserController.create)
 router.get('/:id', UserController.findOne)
+router.get('/photo/:id', UserController.getImageUser)
 
 module.exports = router
