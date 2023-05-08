@@ -7,7 +7,9 @@ import chair from '../../assets/chair.jpg'
 import shouldler from '../../assets/shoulder.jpg'
 import chakravakasana from '../../assets/chakravakasana.jpg'
 import dwiPadaViparitaDandasana from '../../assets/dwiPadaViparitaDandasana.jpg'
+import profileDefult from '../../assets/default.jpg'
 import { yearOld } from '../../helpers/validation'
+import { toast } from 'sonner'
 
 const imgPose = {
     Chair: chair,
@@ -22,14 +24,42 @@ const imgPose = {
 
 export const Profile = () => {
     const user = JSON.parse(localStorage.getItem('user'))
+    const [photo, setPhoto] = useState(null)
     const [details, setDetails] = useState({
-        timeWeek: { hours: 0, minutes: 8, seconds: 35 },
-        exercisePerformed: [
-            { name: 'Tree', time: '00:04:25', evaluate: 95.4 },
-            { name: 'Chair', time: '00:02:55', evaluate: 90.2 },
-            { name: 'Traingle', time: '00:01:15', evaluate: 97.9 }
-        ]
+        timeWeek: '00:00:00',
+        exercisePerformed: []
     })
+
+    useEffect(() => {
+        const fetchAPI = async () => {
+            try {
+                const resPhoto = await fetch(
+                    `http://localhost:9000/api/users/photo/${user.id}`,
+                    { method: 'GET' }
+                )
+                const dataPhoto = await resPhoto.json()
+                if (resPhoto.status === 200)
+                    setPhoto(`data:image/jpg;base64,${dataPhoto.base}`)
+                else toast.error('Error al traer la Foto de Perfil')
+
+                const resData = await fetch(
+                    `http://localhost:9000/api/activity/${user.id}`,
+                    { method: 'GET' }
+                )
+                const data = await resData.json()
+                if (resData.status === 200)
+                    setDetails({
+                        timeWeek: data.timeTotal,
+                        exercisePerformed: data.activities
+                    })
+                else toast.error('Error al traer la Foto de Perfil')
+            } catch (error) {
+                toast.error('Error en la peticion')
+                console.log(error)
+            }
+        }
+        fetchAPI()
+    }, [])
 
     return (
         <>
@@ -39,21 +69,9 @@ export const Profile = () => {
             <div className="flex bg-white/80 rounded-xl">
                 <div className="w-4/6 p-6 text-center">
                     <h3 className="font-bold text-2xl text-orangeColor">
-                        TIEMPO SEMANAL
+                        TIEMPO TOTAL
                     </h3>
-                    <span className="text-5xl">
-                        {details.timeWeek.hours < 10
-                            ? `0${details.timeWeek.hours}`
-                            : details.timeWeek.hours}
-                        :
-                        {details.timeWeek.minutes < 10
-                            ? `0${details.timeWeek.minutes}`
-                            : details.timeWeek.minutes}
-                        :
-                        {details.timeWeek.seconds < 10
-                            ? `0${details.timeWeek.seconds}`
-                            : details.timeWeek.seconds}
-                    </span>
+                    <span className="text-5xl">{details.timeWeek}</span>
                     <div className="mt-5">
                         <ul>
                             {details.exercisePerformed.map((detail, index) => (
@@ -74,6 +92,7 @@ export const Profile = () => {
                                                 {detail.name}
                                             </p>
                                             <p>{detail.time}</p>
+                                            <p>{detail.date}</p>
                                         </div>
                                         <div className="w-2/6 m-auto text-5xl">
                                             {detail.evaluate}%
@@ -87,10 +106,9 @@ export const Profile = () => {
                 <div className="w-4/12 p-6">
                     <div className="text-center m-auto w-2/4">
                         <img
-                            className="rounded-full
-                            "
-                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
-                            alt=""
+                            className="rounded-full"
+                            src={photo ?? profileDefult}
+                            alt="profile"
                         />
                     </div>
                     <div className="mt-4 m-auto w-2/4">
