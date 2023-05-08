@@ -1,5 +1,9 @@
 const { getFullFaceDescription, createMatcher } = require('../helpers/face')
-const { upLoadImage, upLoadImageTemp } = require('../helpers/upload')
+const {
+    upLoadImage,
+    upLoadImageTemp,
+    getImagePath
+} = require('../helpers/upload')
 const path = require('path')
 const { User } = require('../models')
 const fs = require('fs')
@@ -129,6 +133,31 @@ module.exports = {
         } catch (error) {
             return res.status(500).json({
                 message: error.message || 'Error in verify Identification.'
+            })
+        }
+    },
+    async getImageUser(req, res) {
+        const id = req.params.id
+        try {
+            const user = await User.findById(id).select(['photo'])
+
+            if (user !== null) {
+                if (user.photo !== null)
+                    return res.json({
+                        base: getImagePath(user.photo, 'users')
+                    })
+                else
+                    return res.status(404).json({
+                        message: 'No exist image'
+                    })
+            } else
+                return res.status(404).json({
+                    message: 'No record found'
+                })
+        } catch (error) {
+            return res.status(500).send({
+                message: 'Error retrieving User with id=' + id,
+                error
             })
         }
     }
