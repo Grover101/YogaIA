@@ -5,6 +5,7 @@ import { Form } from './../Form'
 import { fetchAPI } from '../../helpers/fetch'
 import { validationFom } from '../../helpers/validation'
 import testImg from './../../assets/default.jpg'
+import { toast } from 'sonner'
 const MaxWidth = 600
 
 const INIT_STATE = {
@@ -120,11 +121,13 @@ class FaceRecognition extends Component {
             formData.append('ci', form.ci.value)
             formData.append('photo', this.state.file)
             const response = await fetchAPI(formData, '/users')
-            if (response?.error)
+            if (response?.error) {
+                toast.error('Error al Registrar Usuario')
                 this.setState({
                     errorFetch: { value: response.error, state: true }
                 })
-            else {
+            } else {
+                toast.success('Register Success!!!')
                 this.setState({
                     errorFetch: { value: 'Usuario Registrado', state: false }
                 })

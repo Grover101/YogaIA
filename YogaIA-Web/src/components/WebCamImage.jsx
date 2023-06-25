@@ -5,6 +5,7 @@ import { Form } from './Form'
 import { getFullFaceDescription } from '../api/face'
 import { fetchAPI } from '../helpers/fetch'
 import { DataURIToBlob, validationFom } from '../helpers/validation'
+import { toast } from 'sonner'
 
 function WebcamImage() {
     const [img, setImg] = useState(null)
@@ -46,7 +47,7 @@ function WebcamImage() {
         setFile(fileAux)
         setError(
             fullCaracter.length !== 1
-                ? 'No Hay rostro'
+                ? 'No Hay rostro, no use ningun objeto en el rostro'
                 : message
                 ? `Esta persona es ${message.name} ya esta registrada`
                 : null
@@ -68,7 +69,7 @@ function WebcamImage() {
             setError('No se saco foto')
             validation = false
         } else if (fullDesc?.length !== 1) {
-            setError('No Hay rostro')
+            setError('No hay rostro, no use ningun objeto en el rostro')
             validation = false
         } else setError(null)
 
@@ -83,13 +84,15 @@ function WebcamImage() {
             formData.append('ci', formAux.ci.value)
             formData.append('photo', file)
             const response = await fetchAPI(formData, '/users')
-            if (response?.error)
+            if (response?.error) {
+                toast.error('Error al Registrar Usuario')
                 setErrorFetch({ value: response.error, state: true })
-            else {
+            } else {
+                toast.success('Register Success!!!')
                 setErrorFetch({ value: 'Usuario Registrado', state: false })
                 setTimeout(() => {
                     navigate('/evaluate')
-                }, 1000)
+                }, 1500)
             }
         }
     }
@@ -127,8 +130,12 @@ function WebcamImage() {
                             />
                         )}
                         {error ? (
-                            <p className="block mt-2 text-xl font-medium text-[#ff0000] dark:text-white bg-transparent">
+                            <p className="block mt-2 text-xl font-medium text-[#ff0000] dark:text-[#ff0000] bg-transparent">
                                 {error}
+                            </p>
+                        ) : img ? (
+                            <p className="block mt-2 text-xl font-medium text-[#00ff2a] dark:text-[#00ff2a] bg-transparent">
+                                Foto Correcta
                             </p>
                         ) : null}
                         <button
