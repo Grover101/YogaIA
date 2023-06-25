@@ -21,22 +21,22 @@ const NAVIGATION_LINKS = [
 
 const SOCIAL_NETWORKS_LINKS = [
     {
-        component: Icons.facebook,
-        title: 'facebook',
-        icon: 'facebook-icon.svg',
-        href: '#'
+        component: Icons.github,
+        title: 'github',
+        icon: 'github-icon.svg',
+        href: 'https://github.com/Grover101'
     },
     {
         component: Icons.linkedin,
         title: 'linkedin',
         icon: 'linkedin-icon.svg',
-        href: '#'
+        href: 'https://www.linkedin.com/in/grover-limachi/'
     },
     {
         component: Icons.twitter,
         title: 'twitter',
         icon: 'twitter-icon.svg',
-        href: '#'
+        href: 'https://twitter.com/GroverLimachi2'
     }
 ]
 
