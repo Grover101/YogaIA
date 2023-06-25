@@ -33,7 +33,11 @@ export const validationFom = form => {
 }
 
 export const DataURIToBlob = dataURI => {
-    const splitDataURI = dataURI.split(',')
+    const splitDataURI = dataURI
+        ? dataURI?.split(',')
+        : `data:image/png;base64,R0lGODlhDAAMAKIFAF5LAP/zxAAAANyuAP/gaP///wAAAAAAACH5BAEAAAUALAAAAAAMAAwAAAMlWLPcGjDKFYi9lxKBOaGcF35DhWHamZUW0K4mAbiwWtuf0uxFAgA7`.split(
+              ','
+          )
     const byteString =
         splitDataURI[0].indexOf('base64') >= 0
             ? atob(splitDataURI[1])
