@@ -158,7 +158,7 @@ export const Evaluation = () => {
         )
         // carga de modelo
         const poseClassifier = await tf.loadLayersModel(
-            'http://localhost:9000/poses1/model.json'
+            'http://localhost:9000/poses/model.json'
         )
 
         interval = setInterval(() => {
@@ -238,7 +238,7 @@ export const Evaluation = () => {
                         poseClassifier.predict(processedInput)
 
                     classification.array().then(data => {
-                        // console.log(data[0])
+                        console.log(data[0][5])
                         // const classNo = CLASS_NO[currentPose]
                         // console.log(data[0][classNo])/
                         // setCurrentTime(new Date(Date()).getTime())
@@ -342,7 +342,7 @@ export const Evaluation = () => {
                             poseCorrect.push(data[0])
                         } else {
                             skeletonColor = 'rgb(255,255,255)'
-                            // poseCorrect.push(data[0])
+                            poseCorrect.push(data[0])
                             if (!flag1) {
                                 console.log('pause', flag1)
                                 pause()
@@ -430,18 +430,48 @@ export const Evaluation = () => {
     }
 
     const stopPose = () => {
-        console.log('termina')
-        end = true
-        const ctx = canvasRef.current.getContext('2d')
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-        // setPoseTime(0)
-        // pause()
-        clearInterval(interval)
-        toast.success('Evalucion Gurdada y Finalizada!!!')
-        console.log(JSON.stringify(infoFinal, null, 2))
-        // calculate()
-        // setResetPlay(true)
-        // window.location.reload()
+        if (infoFinal.name !== 'Ninguno') {
+            console.log('termina')
+            end = true
+            const ctx = canvasRef.current.getContext('2d')
+            ctx.clearRect(
+                0,
+                0,
+                canvasRef.current.width,
+                canvasRef.current.height
+            )
+            // setPoseTime(0)
+            // pause()
+            clearInterval(interval)
+
+            const data = {
+                id: user.id,
+                name: infoFinal.name,
+                bestTime: infoFinal.bestTime,
+                porcentaje: infoFinal.porcentaje
+            }
+
+            console.log(data)
+
+            fetch('http://localhost:9000/api/activity', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(data => {
+                    // console.log(data.body)
+                    // toast.success('Progreso Guardado!!!')
+                    toast.success('Evalucion Gurdada y Finalizada!!!')
+                })
+                .catch(error => {
+                    console.error(error)
+                    toast.error('Ocurrio un error al guardar')
+                })
+            // console.log(JSON.stringify(infoFinal, null, 2))
+            // calculate()
+            // setResetPlay(true)
+            // window.location.reload()
+        } else toast.error('Debe Realizar una Evaluacion')
     }
 
     // function resetPose() {
@@ -450,6 +480,7 @@ export const Evaluation = () => {
     // }
 
     if (timeEnd) {
+        console.log(timeEnd)
         timeEnd = false
         calculate()
     }
