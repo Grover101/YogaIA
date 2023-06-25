@@ -43,14 +43,14 @@ export const CameraFaceDetect = () => {
     }
 
     const capture = useCallback(async () => {
-        const imageSrc = webcam.current.getScreenshot()
+        const imageSrc = webcam.current?.getScreenshot()
         const file = DataURIToBlob(imageSrc)
         const formData = new FormData()
         formData.append('photo', file)
         const message = await fetchAPI(formData, '/users/verify')
         setUser(message)
         const fullDescAuxn = await getFullFaceDescription(
-            webcam.current.getScreenshot(),
+            webcam.current?.getScreenshot(),
             inputSize
         )
         await setFullDesc(e => fullDescAuxn)
