@@ -55,7 +55,6 @@ export const Profile = () => {
                 else toast.error('Error al traer la Foto de Perfil')
             } catch (error) {
                 toast.error(`Error en la peticion\n ${error}`)
-                console.log(error)
             }
         }
         fetchAPI()

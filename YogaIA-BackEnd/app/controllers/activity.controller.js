@@ -4,11 +4,9 @@ module.exports = {
     async create(req, res) {
         try {
             const data = req.body
-            console.log({ data })
 
             const user = await User.findById(data.id).select(['id'])
             if (!user) return res.status(400).json({ error: 'User no existe.' })
-            console.log(user)
 
             const activity = new Activity({
                 name: data.name,

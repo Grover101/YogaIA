@@ -106,7 +106,6 @@ class FaceRecognition extends Component {
         let [validation, form] = validationFom({ ...this.state.form })
 
         if (this.state.fullDesc?.length !== 1) {
-            console.log('No Hay rostro')
             validation = false
         }
 
